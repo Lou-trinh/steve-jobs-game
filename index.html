@@ -319,15 +319,12 @@ function drawQuizBar(st){
   const pad=10,bh=10,by=hudBottom(st)+4,bw=W-pad*2-60;
   const bx=pad+30;
 
-  // Label "❓ x/y"
+  // Track + fill first
+  rr(bx,by,bw,bh,5,'rgba(0,0,0,0.5)','rgba(255,255,255,0.06)',1);
+  if(pct>0) rr(bx,by,Math.round(bw*pct),bh,5,'rgba(245,166,35,0.8)');
+  // Label on top
   ctx.fillStyle='#f5a623';ctx.font='bold 11px Courier New';ctx.textAlign='left';
   ctx.fillText(`❓ ${st.collected.length}/${nxt}`,pad,by+bh-1);
-
-  // Track
-  rr(bx,by,bw,bh,5,'rgba(0,0,0,0.5)','rgba(255,255,255,0.06)',1);
-  // Fill
-  if(pct>0) rr(bx,by,Math.round(bw*pct),bh,5,'rgba(245,166,35,0.8)');
-  // Quiz number badge on right
   ctx.fillStyle='#666';ctx.font='bold 10px Courier New';ctx.textAlign='left';
   ctx.fillText(`Q${st.quiz.qi+1}`,W-pad-18,by+bh-1);
 }
