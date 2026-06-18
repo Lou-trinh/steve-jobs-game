@@ -285,11 +285,11 @@ function drawTopBar(st){
 function drawProgressAndLives(st){
   const parts=LEVELS[st.level].parts,n=parts.length;
   const cols=Math.min(4,n),rows=Math.ceil(n/cols);
-  const barW=14,pad=10,gap=4,boxH=26;
-  const boxW=Math.floor((W-pad*2-gap*(cols-1)-barW-8)/cols);
+  const pad=10,gap=4,boxH=26;
+  const boxW=Math.floor((W-pad*2-gap*(cols-1))/cols);
   const by=38;
 
-  rr(pad-4,by-2,W-pad*2-barW-4,rows*(boxH+gap)-gap+8,6,'rgba(0,0,0,0.6)');
+  rr(pad-4,by-2,W-pad*2+8,rows*(boxH+gap)-gap+8,6,'rgba(0,0,0,0.6)');
   parts.forEach((p,i)=>{
     const col=i%cols,row=Math.floor(i/cols);
     const px=pad+col*(boxW+gap),py=by+row*(boxH+gap);
@@ -301,34 +301,37 @@ function drawProgressAndLives(st){
   });
 
   // Hearts below progress boxes
-  const livesY=by+rows*(boxH+gap)+2;
+  const livesY=by+rows*(boxH+gap)+4;
   ctx.font='20px serif';ctx.textAlign='left';
   ctx.fillText('❤️'.repeat(st.lives),pad,livesY+20);
 }
 
-// ─── QUIZ BAR (vertical, right side) ─────────────────────────────
+// returns y-bottom of the HUD area (progress + lives)
+function hudBottom(st){
+  const n=LEVELS[st.level].parts.length,rows=Math.ceil(n/Math.min(4,n)),boxH=26,gap=4;
+  return 38+rows*(boxH+gap)+4+24; // by + rows + livesH
+}
+
+// ─── QUIZ BAR (horizontal, below hearts) ─────────────────────────
 function drawQuizBar(st){
   if(st.quiz.on||st.quiz.qi>=2)return;
   const lv=LEVELS[st.level];
   const nxt=lv.quiz[st.quiz.mi];
   const pct=Math.min(1,st.collected.length/nxt);
-  const bw=16,bx=W-bw-6,by=38,bh=GROUND-by-10;
-  // track
-  rr(bx,by,bw,bh,7,'rgba(0,0,0,0.55)','rgba(255,255,255,0.06)',1);
-  // fill (bottom up)
-  if(pct>0){
-    const fh=Math.round(bh*pct);
-    ctx.save();ctx.beginPath();
-    if(ctx.roundRect)ctx.roundRect(bx,by+bh-fh,bw,fh,7);
-    else{ctx.rect(bx,by+bh-fh,bw,fh);}
-    ctx.fillStyle='rgba(245,166,35,0.75)';ctx.fill();ctx.restore();
-  }
-  // icon
-  ctx.font='13px serif';ctx.textAlign='center';
-  ctx.fillText('❓',bx+bw/2,by-4);
-  // count
-  ctx.fillStyle='#888';ctx.font='bold 9px Courier New';ctx.textAlign='center';
-  ctx.fillText(`${st.collected.length}/${nxt}`,bx+bw/2,by+bh+12);
+  const pad=10,bh=10,by=hudBottom(st)+4,bw=W-pad*2-60;
+  const bx=pad+30;
+
+  // Label "❓ x/y"
+  ctx.fillStyle='#f5a623';ctx.font='bold 11px Courier New';ctx.textAlign='left';
+  ctx.fillText(`❓ ${st.collected.length}/${nxt}`,pad,by+bh-1);
+
+  // Track
+  rr(bx,by,bw,bh,5,'rgba(0,0,0,0.5)','rgba(255,255,255,0.06)',1);
+  // Fill
+  if(pct>0) rr(bx,by,Math.round(bw*pct),bh,5,'rgba(245,166,35,0.8)');
+  // Quiz number badge on right
+  ctx.fillStyle='#666';ctx.font='bold 10px Courier New';ctx.textAlign='left';
+  ctx.fillText(`Q${st.quiz.qi+1}`,W-pad-18,by+bh-1);
 }
 
 // ─── ITEM + PLAYER ───────────────────────────────────────────────
