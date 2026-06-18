@@ -9,7 +9,6 @@
   <style>
     * { margin:0; padding:0; box-sizing:border-box; }
     html, body { width:100%; height:100%; overflow:hidden; touch-action:none; background:#0d1117; font-family:'Courier New',monospace; color:#fff; }
-
     canvas { position:fixed; top:0; left:0; width:100vw; height:100dvh; display:block; touch-action:none; }
 
     .screen {
@@ -19,28 +18,23 @@
       background:#0d1117; padding:1.2rem 1rem 2rem; gap:0.75rem;
     }
     .hidden { display:none !important; }
-
     h1 { font-size:clamp(1.8rem,7vw,2.6rem); color:#f5a623; text-shadow:0 0 20px #f5a623; letter-spacing:2px; }
     h2 { font-size:clamp(1.4rem,5.5vw,2rem); color:#f5a623; text-shadow:0 0 14px #f5a623; }
     .subtitle { color:#888; font-size:clamp(0.8rem,2.5vw,1rem); text-align:center; }
-
     .instructions {
-      background:#111827; border:1px solid #f5a62366;
-      border-radius:12px; padding:0.9rem 1.2rem;
-      line-height:2; font-size:clamp(0.8rem,2.3vw,0.95rem);
+      background:#111827; border:1px solid #f5a62366; border-radius:12px;
+      padding:0.9rem 1.2rem; line-height:2; font-size:clamp(0.8rem,2.3vw,0.95rem);
       width:100%; max-width:480px;
     }
     .collect { color:#4ecdc4; } .avoid { color:#ff6b6b; }
-
     .levels-row { display:flex; gap:0.5rem; flex-wrap:wrap; justify-content:center; width:100%; max-width:480px; }
     .lv-card {
       background:#111827; border:1px solid #2a4a7f; border-radius:10px;
       padding:0.5rem 0.8rem; text-align:center;
       font-size:clamp(0.72rem,2vw,0.82rem); color:#aaa; flex:1; min-width:110px;
     }
-    .lv-card .lv-num { color:#f5a623; font-weight:bold; font-size:1em; }
+    .lv-card .lv-num { color:#f5a623; font-weight:bold; }
     .lv-card .lv-parts { color:#4ecdc4; margin-top:0.15rem; }
-
     .select-title { color:#f5a623; font-size:clamp(0.85rem,2.5vw,1rem); letter-spacing:3px; }
     .char-grid { display:flex; gap:0.6rem; justify-content:center; flex-wrap:wrap; width:100%; max-width:480px; }
     .char-card {
@@ -53,18 +47,16 @@
     .char-card img { width:clamp(52px,14vw,68px); height:clamp(62px,16vw,80px); object-fit:contain; display:block; margin:0 auto; }
     .char-name { font-size:clamp(0.62rem,1.8vw,0.74rem); margin-top:0.3rem; color:#888; }
     .char-card.selected .char-name { color:#f5a623; font-weight:bold; }
-
     .btn {
       background:linear-gradient(135deg,#f5a623,#e8960f); color:#0d1117;
       border:none; padding:0.85rem 2.2rem; font-size:clamp(0.95rem,3vw,1.1rem);
       font-family:'Courier New',monospace; font-weight:bold;
       border-radius:8px; cursor:pointer; letter-spacing:2px;
       touch-action:manipulation; box-shadow:0 4px 20px rgba(245,166,35,0.4);
-      transition:transform 0.1s, box-shadow 0.1s;
+      transition:transform 0.1s;
     }
     .btn:active:not(:disabled) { transform:scale(0.97); }
     .btn:disabled { opacity:0.35; cursor:not-allowed; }
-
     .result-msg { font-size:clamp(0.9rem,2.8vw,1.05rem); color:#ccc; text-align:center; }
     .win-products { font-size:clamp(1.5rem,5vw,2.2rem); letter-spacing:6px; }
     #win-score, #gameover-rank { color:#f5a623; font-size:clamp(0.9rem,2.6vw,1.05rem); text-align:center; }
@@ -80,7 +72,7 @@
     <div><span class="collect">THU THẬP</span> linh kiện rơi từ trên trời ⬇️</div>
     <div><span class="avoid">TRÁNH</span> Hóa đơn 💸 · Đối thủ 🤖 · Lỗi ⚡</div>
     <div style="color:#f5a623">❓ 2 câu Quiz/màn · Đúng +300 · Sai -1000</div>
-    <div style="color:#555;font-size:0.85em">◀ ▶ Di chuyển · ▲ Nhảy</div>
+    <div style="color:#555;font-size:0.85em">📱 Chạm trái/phải màn hình để di chuyển</div>
   </div>
   <div class="levels-row">
     <div class="lv-card"><div class="lv-num">LV1·1976</div>Garage<div class="lv-parts">4 lk → 🍎</div></div>
@@ -122,17 +114,12 @@
 <script>
 const canvas = document.getElementById('game');
 const ctx    = canvas.getContext('2d');
-let W, H, GROUND, VBTN;
+let W, H, GROUND;
 
 function resizeCanvas(){
   W = canvas.width  = window.innerWidth;
   H = canvas.height = window.innerHeight;
-  GROUND = H - 155;
-  VBTN = {
-    left:  { x:10,    y:H-138, w:90, h:120 },
-    right: { x:110,   y:H-138, w:90, h:120 },
-    jump:  { x:W-112, y:H-138, w:102,h:120 },
-  };
+  GROUND = H - 45;
 }
 resizeCanvas();
 window.addEventListener('resize', resizeCanvas);
@@ -158,14 +145,11 @@ function imgOk(img){ return img&&img.complete&&img.naturalWidth>0; }
 // ─── CONFIG ──────────────────────────────────────────────────────
 const LEVELS=[
   {name:'Garage — Los Altos',year:'1976',product:'Apple I',emoji:'🍎',
-   parts:['chip','mainboard','cpu','keyboard'],
-   speed:3.2,spawnInt:90,eRatio:0.42,quiz:[1,3],color:'#f5a623'},
+   parts:['chip','mainboard','cpu','keyboard'],speed:3.2,spawnInt:90,eRatio:0.42,quiz:[1,3],color:'#f5a623'},
   {name:'Workshop — Cupertino',year:'1977',product:'Apple II',emoji:'🖥️',
-   parts:['chip','mainboard','cpu','keyboard','ram','power'],
-   speed:4.4,spawnInt:72,eRatio:0.50,quiz:[3,5],color:'#52b788'},
+   parts:['chip','mainboard','cpu','keyboard','ram','power'],speed:4.4,spawnInt:72,eRatio:0.50,quiz:[3,5],color:'#52b788'},
   {name:'Apple HQ — Infinite Loop',year:'1984',product:'Macintosh',emoji:'💻',
-   parts:['chip','mainboard','cpu','keyboard','ram','power','monitor','disk'],
-   speed:5.5,spawnInt:58,eRatio:0.56,quiz:[4,7],color:'#e63946'},
+   parts:['chip','mainboard','cpu','keyboard','ram','power','monitor','disk'],speed:5.5,spawnInt:58,eRatio:0.56,quiz:[4,7],color:'#e63946'},
 ];
 const QS=[
   {q:"When was Steve Jobs born?",opts:["A. 1950","B. 1955","C. 1960","D. 1965"],ans:1},
@@ -176,24 +160,20 @@ const QS=[
   {q:"Which quote is famous from Steve Jobs?",opts:["A. \"Think Different.\"","B. \"Just Do It.\"","C. \"I'm Lovin' It.\"","D. \"Move Fast.\""],ans:0},
 ];
 const RANKS=[
-  {name:'Tập Sự',       emoji:'🔵',color:'#6ab0ff',min:0},
+  {name:'Tập Sự',emoji:'🔵',color:'#6ab0ff',min:0},
   {name:'Lập Trình Viên',emoji:'💻',color:'#52b788',min:900},
-  {name:'Kỹ Sư',        emoji:'⚙️', color:'#ffd166',min:2200},
-  {name:'Trưởng Nhóm',  emoji:'📋',color:'#f5a623',min:3800},
-  {name:'CEO',           emoji:'👔',color:'#e63946',min:5400},
-  {name:'Huyền Thoại',  emoji:'🏆',color:'#f5a623',min:6800},
+  {name:'Kỹ Sư',emoji:'⚙️',color:'#ffd166',min:2200},
+  {name:'Trưởng Nhóm',emoji:'📋',color:'#f5a623',min:3800},
+  {name:'CEO',emoji:'👔',color:'#e63946',min:5400},
+  {name:'Huyền Thoại',emoji:'🏆',color:'#f5a623',min:6800},
 ];
 const PLABEL={chip:'Chip',mainboard:'MB',cpu:'CPU',keyboard:'Keys',ram:'RAM',power:'PSU',monitor:'Mon',disk:'FDD'};
 const ENEMIES=['invoice','rival','bug'];
 function getRank(s){let r=RANKS[0];for(const x of RANKS){if(s>=x.min)r=x;else break;}return r;}
 function getNext(s){return RANKS.find(r=>r.min>s)||null;}
 
-// ─── VIRTUAL KEYS ────────────────────────────────────────────────
-const vk={left:false,right:false};
-const AT=new Map();
-function cxy(cx,cy){const r=canvas.getBoundingClientRect();return{x:(cx-r.left)*(W/r.width),y:(cy-r.top)*(H/r.height)};}
-function inB(p,b){return p.x>=b.x&&p.x<=b.x+b.w&&p.y>=b.y&&p.y<=b.y+b.h;}
-function syncVK(){vk.left=false;vk.right=false;AT.forEach(p=>{if(inB(p,VBTN.left))vk.left=true;if(inB(p,VBTN.right))vk.right=true;});}
+// ─── TOUCH MOVEMENT ──────────────────────────────────────────────
+let touchMoveX = null;
 
 // ─── STATE ───────────────────────────────────────────────────────
 let sc=0, state={}, animId=null;
@@ -220,6 +200,8 @@ document.addEventListener('keydown',e=>{
 });
 document.addEventListener('keyup',e=>keys[e.code]=false);
 
+function cxy(cx,cy){const r=canvas.getBoundingClientRect();return{x:(cx-r.left)*(W/r.width),y:(cy-r.top)*(H/r.height)};}
+
 function tap(cx,cy){
   if(!state.running)return;
   const p=cxy(cx,cy);
@@ -227,18 +209,28 @@ function tap(cx,cy){
   if(state.clear){state.clearT=1;return;}
   if(state.quiz.on&&state.quiz.chosen===-1)state.quiz.btns.forEach((b,i)=>{if(p.x>=b.x&&p.x<=b.x+b.w&&p.y>=b.y&&p.y<=b.y+b.h)answer(i);});
 }
+
 canvas.addEventListener('click',e=>tap(e.clientX,e.clientY));
+
 canvas.addEventListener('touchstart',e=>{
   e.preventDefault();
-  for(const t of e.changedTouches){
-    const p=cxy(t.clientX,t.clientY);
-    AT.set(t.identifier,p);
-    if(state.running&&!state.intro&&!state.clear&&!state.quiz.on&&inB(p,VBTN.jump))jump();
-    tap(t.clientX,t.clientY);
-  }syncVK();
+  const t=e.changedTouches[0];
+  tap(t.clientX,t.clientY);
+  if(state.running&&!state.intro&&!state.clear&&!state.quiz.on){
+    touchMoveX=cxy(t.clientX,t.clientY).x;
+  }
 },{passive:false});
-canvas.addEventListener('touchmove',e=>{e.preventDefault();for(const t of e.changedTouches)AT.set(t.identifier,cxy(t.clientX,t.clientY));syncVK();},{passive:false});
-canvas.addEventListener('touchend',e=>{for(const t of e.changedTouches)AT.delete(t.identifier);syncVK();},{passive:false});
+
+canvas.addEventListener('touchmove',e=>{
+  e.preventDefault();
+  if(state.running&&!state.intro&&!state.clear&&!state.quiz.on){
+    touchMoveX=cxy(e.touches[0].clientX,e.touches[0].clientY).x;
+  }
+},{passive:false});
+
+canvas.addEventListener('touchend',e=>{
+  if(e.touches.length===0) touchMoveX=null;
+},{passive:false});
 
 function jump(){const p=state.player;if(p.ground){p.vy=JUMP_V;p.ground=false;}}
 function answer(c){
@@ -266,84 +258,38 @@ function wrap(txt,mw){
 }
 function drawImg(img,x,y,s){
   if(!imgOk(img))return false;
-  try{
-    const sc=Math.min(s/img.naturalWidth,s/img.naturalHeight);
-    const dw=img.naturalWidth*sc,dh=img.naturalHeight*sc;
-    ctx.drawImage(img,Math.round(x+(s-dw)/2),Math.round(y+(s-dh)/2),Math.round(dw),Math.round(dh));
-  }catch(e){}
+  try{const sc2=Math.min(s/img.naturalWidth,s/img.naturalHeight),dw=img.naturalWidth*sc2,dh=img.naturalHeight*sc2;ctx.drawImage(img,Math.round(x+(s-dw)/2),Math.round(y+(s-dh)/2),Math.round(dw),Math.round(dh));}catch(e){}
   return true;
 }
 
-// ─── DRAW BACKGROUND ─────────────────────────────────────────────
+// ─── BACKGROUND ──────────────────────────────────────────────────
 function drawBG(st){
-  const lv=LEVELS[st.level];
-  const img=IMGS[`bg${st.level+1}`];
+  const lv=LEVELS[st.level],img=IMGS[`bg${st.level+1}`];
   let drew=false;
-  if(imgOk(img)){
-    try{
-      const iAR=img.naturalWidth/img.naturalHeight,cAR=W/H;
-      let sx=0,sy=0,sw=img.naturalWidth,sh=img.naturalHeight;
-      if(iAR>cAR){sw=Math.round(img.naturalHeight*cAR);sx=Math.round((img.naturalWidth-sw)/2);}
-      else{sh=Math.round(img.naturalWidth/cAR);sy=Math.round((img.naturalHeight-sh)/2);}
-      if(sw>0&&sh>0){ctx.drawImage(img,sx,sy,sw,sh,0,0,W,H);drew=true;}
-    }catch(e){}
-  }
-  if(!drew){
-    const g=ctx.createLinearGradient(0,0,0,H);
-    g.addColorStop(0,'#0d1b35');g.addColorStop(0.6,'#16213e');g.addColorStop(1,'#0a1020');
-    ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
-  }
-  // control area
-  ctx.fillStyle='rgba(0,0,0,0.82)';ctx.fillRect(0,GROUND,W,H-GROUND);
+  if(imgOk(img)){try{const iAR=img.naturalWidth/img.naturalHeight,cAR=W/H;let sx=0,sy=0,sw=img.naturalWidth,sh=img.naturalHeight;if(iAR>cAR){sw=Math.round(img.naturalHeight*cAR);sx=Math.round((img.naturalWidth-sw)/2);}else{sh=Math.round(img.naturalWidth/cAR);sy=Math.round((img.naturalHeight-sh)/2);}if(sw>0&&sh>0){ctx.drawImage(img,sx,sy,sw,sh,0,0,W,H);drew=true;}}catch(e){}}
+  if(!drew){const g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,'#0d1b35');g.addColorStop(0.7,'#16213e');g.addColorStop(1,'#0a1020');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);}
+  ctx.fillStyle='rgba(0,0,0,0.72)';ctx.fillRect(0,GROUND,W,H-GROUND);
   ctx.fillStyle=lv.color;ctx.fillRect(0,GROUND,W,3);
 }
 
 // ─── TOP BAR ─────────────────────────────────────────────────────
 function drawTopBar(st){
   const lv=LEVELS[st.level];
-  rr(0,0,W,38,0,'rgba(0,0,0,0.78)');
-  // Level info
-  ctx.fillStyle=lv.color;ctx.font='bold 13px Courier New';ctx.textAlign='left';
-  ctx.fillText(`LVL${st.level+1} · ${lv.year} — ${lv.name}`,10,24);
-  // Score
-  ctx.fillStyle='#f5a623';ctx.font='bold 14px Courier New';ctx.textAlign='right';
-  ctx.fillText(`${st.score}đ`,W-10,24);
-  // Lives (center)
-  ctx.font='18px serif';ctx.textAlign='center';
-  ctx.fillText('❤️'.repeat(st.lives),W/2,25);
+  rr(0,0,W,36,0,'rgba(0,0,0,0.80)');
+  ctx.font='bold 13px Courier New';
+  ctx.fillStyle=lv.color;ctx.textAlign='left';ctx.fillText(`LVL${st.level+1} · ${lv.year} — ${lv.name}`,10,23);
+  ctx.fillStyle='#f5a623';ctx.textAlign='right';ctx.fillText(`${st.score}đ`,W-10,23);
 }
 
-// ─── DRAW PLAYER ─────────────────────────────────────────────────
-function drawPlayer(p){
-  const img=IMGS[`player${sc}`];
-  ctx.save();
-  if(imgOk(img)){
-    if(p.face<0){ctx.translate(p.x+PLAYER_W,p.y);ctx.scale(-1,1);ctx.drawImage(img,0,0,PLAYER_W,PLAYER_H);}
-    else ctx.drawImage(img,p.x,p.y,PLAYER_W,PLAYER_H);
-  }else{rr(p.x+5,p.y,PLAYER_W-10,PLAYER_H-10,6,'#f4a261');rr(p.x,p.y+PLAYER_H-12,PLAYER_W,12,4,'#1a1a1a');}
-  ctx.restore();
-}
-
-// ─── DRAW ITEM ───────────────────────────────────────────────────
-function drawItem(item){
-  ctx.save();
-  ctx.shadowColor=item.enemy?'#ff6b6b':'#4ecdc4';ctx.shadowBlur=14;
-  if(!drawImg(IMGS[IKEY[item.type]],item.x,item.y,ITEM_SIZE)){
-    rr(item.x,item.y,ITEM_SIZE,ITEM_SIZE,8,item.enemy?'#ff4444':'#4ecdc4');
-    ctx.shadowBlur=0;ctx.fillStyle='#fff';ctx.font='bold 10px Courier New';
-    ctx.textAlign='center';ctx.fillText(item.type.slice(0,3).toUpperCase(),item.x+ITEM_SIZE/2,item.y+ITEM_SIZE/2+4);
-  }
-  ctx.restore();
-}
-
-// ─── PROGRESS BAR ────────────────────────────────────────────────
-function drawProgress(st){
+// ─── PROGRESS + LIVES ────────────────────────────────────────────
+function drawProgressAndLives(st){
   const parts=LEVELS[st.level].parts,n=parts.length;
   const cols=Math.min(4,n),rows=Math.ceil(n/cols);
-  const pad=10,gap=4,boxH=26;
-  const boxW=Math.floor((W-pad*2-gap*(cols-1))/cols);
-  const by=40;
-  rr(pad-4,by-3,W-pad*2+8,rows*(boxH+gap)-gap+10,6,'rgba(0,0,0,0.6)');
+  const barW=14,pad=10,gap=4,boxH=26;
+  const boxW=Math.floor((W-pad*2-gap*(cols-1)-barW-8)/cols);
+  const by=38;
+
+  rr(pad-4,by-2,W-pad*2-barW-4,rows*(boxH+gap)-gap+8,6,'rgba(0,0,0,0.6)');
   parts.forEach((p,i)=>{
     const col=i%cols,row=Math.floor(i/cols);
     const px=pad+col*(boxW+gap),py=by+row*(boxH+gap);
@@ -353,181 +299,147 @@ function drawProgress(st){
     ctx.font=`${done?'bold ':''}11px Courier New`;ctx.textAlign='center';
     ctx.fillText(PLABEL[p],px+boxW/2,py+boxH-7);
   });
+
+  // Hearts below progress boxes
+  const livesY=by+rows*(boxH+gap)+2;
+  ctx.font='20px serif';ctx.textAlign='left';
+  ctx.fillText('❤️'.repeat(st.lives),pad,livesY+20);
 }
 
-// ─── QUIZ PROGRESS ───────────────────────────────────────────────
+// ─── QUIZ BAR (vertical, right side) ─────────────────────────────
 function drawQuizBar(st){
   if(st.quiz.on||st.quiz.qi>=2)return;
   const lv=LEVELS[st.level];
   const nxt=lv.quiz[st.quiz.mi];
   const pct=Math.min(1,st.collected.length/nxt);
-  const bw=Math.min(200,W*0.5),bx=W/2-bw/2,by=GROUND-28;
-  rr(bx,by,bw,12,5,'rgba(0,0,0,0.5)');
+  const bw=16,bx=W-bw-6,by=38,bh=GROUND-by-10;
+  // track
+  rr(bx,by,bw,bh,7,'rgba(0,0,0,0.55)','rgba(255,255,255,0.06)',1);
+  // fill (bottom up)
   if(pct>0){
+    const fh=Math.round(bh*pct);
     ctx.save();ctx.beginPath();
-    ctx.roundRect(bx,by,bw*pct,12,5);ctx.fillStyle='rgba(245,166,35,0.7)';ctx.fill();ctx.restore();
+    if(ctx.roundRect)ctx.roundRect(bx,by+bh-fh,bw,fh,7);
+    else{ctx.rect(bx,by+bh-fh,bw,fh);}
+    ctx.fillStyle='rgba(245,166,35,0.75)';ctx.fill();ctx.restore();
   }
-  ctx.fillStyle='#f5a623';ctx.font='bold 11px Courier New';ctx.textAlign='center';
-  ctx.fillText(`❓ Quiz ${st.quiz.qi+1}/2 · ${st.collected.length}/${nxt} lk`,W/2,by-5);
+  // icon
+  ctx.font='13px serif';ctx.textAlign='center';
+  ctx.fillText('❓',bx+bw/2,by-4);
+  // count
+  ctx.fillStyle='#888';ctx.font='bold 9px Courier New';ctx.textAlign='center';
+  ctx.fillText(`${st.collected.length}/${nxt}`,bx+bw/2,by+bh+12);
 }
 
-// ─── SHADOW TRAILS ───────────────────────────────────────────────
+// ─── ITEM + PLAYER ───────────────────────────────────────────────
+function drawItem(item){
+  ctx.save();ctx.shadowColor=item.enemy?'#ff6b6b':'#4ecdc4';ctx.shadowBlur=14;
+  if(!drawImg(IMGS[IKEY[item.type]],item.x,item.y,ITEM_SIZE)){
+    rr(item.x,item.y,ITEM_SIZE,ITEM_SIZE,8,item.enemy?'#ff4444':'#4ecdc4');
+    ctx.shadowBlur=0;ctx.fillStyle='#fff';ctx.font='bold 10px Courier New';
+    ctx.textAlign='center';ctx.fillText(item.type.slice(0,3).toUpperCase(),item.x+ITEM_SIZE/2,item.y+ITEM_SIZE/2+4);
+  }
+  ctx.restore();
+}
+function drawPlayer(p){
+  const img=IMGS[`player${sc}`];ctx.save();
+  if(imgOk(img)){if(p.face<0){ctx.translate(p.x+PLAYER_W,p.y);ctx.scale(-1,1);ctx.drawImage(img,0,0,PLAYER_W,PLAYER_H);}else ctx.drawImage(img,p.x,p.y,PLAYER_W,PLAYER_H);}
+  else{rr(p.x+5,p.y,PLAYER_W-10,PLAYER_H-10,6,'#f4a261');}
+  ctx.restore();
+}
 function drawShadows(st){
-  st.items.forEach(item=>{
-    if(item.collected)return;
-    const a=Math.max(0,Math.min(0.7,item.y/GROUND));
-    const cx=item.x+ITEM_SIZE/2,rgb=item.enemy?'255,107,107':'78,205,196';
-    ctx.save();
-    ctx.fillStyle=`rgba(${rgb},${a*0.25})`;
-    ctx.beginPath();ctx.ellipse(cx,GROUND+5,(ITEM_SIZE/2)*(0.4+a*0.6),4,0,0,Math.PI*2);ctx.fill();
-    ctx.restore();
-  });
-}
-
-// ─── VIRTUAL BUTTONS ─────────────────────────────────────────────
-function drawVBtns(st){
-  if(!st.running||st.intro||st.clear||st.quiz.on)return;
-  const btns=[
-    {b:VBTN.left, lbl:'◀',active:vk.left, rgb:'180,210,255'},
-    {b:VBTN.right,lbl:'▶',active:vk.right,rgb:'180,210,255'},
-    {b:VBTN.jump, lbl:'▲',active:false,   rgb:'245,166,35'},
-  ];
-  btns.forEach(({b,lbl,active,rgb})=>{
-    ctx.save();
-    // Glass button
-    const g=ctx.createLinearGradient(b.x,b.y,b.x,b.y+b.h);
-    g.addColorStop(0,`rgba(${rgb},${active?0.28:0.12})`);
-    g.addColorStop(1,`rgba(${rgb},${active?0.08:0.04})`);
-    rr(b.x,b.y,b.w,b.h,20,g,`rgba(${rgb},${active?0.9:0.3})`,active?2.5:1.5);
-    ctx.fillStyle=`rgba(${rgb},${active?1:0.7})`;
-    ctx.font='bold 34px Arial';ctx.textAlign='center';
-    ctx.fillText(lbl,b.x+b.w/2,b.y+b.h/2+12);
-    ctx.restore();
-  });
+  st.items.forEach(item=>{if(item.collected)return;const a=Math.max(0,Math.min(0.7,item.y/GROUND)),cx=item.x+ITEM_SIZE/2,rgb=item.enemy?'255,107,107':'78,205,196';ctx.save();ctx.fillStyle=`rgba(${rgb},${a*0.25})`;ctx.beginPath();ctx.ellipse(cx,GROUND+4,(ITEM_SIZE/2)*(0.4+a*0.6),4,0,0,Math.PI*2);ctx.fill();ctx.restore();});
 }
 
 // ─── QUIZ OVERLAY ────────────────────────────────────────────────
 function drawQuiz(st){
   const q=state.quiz,qd=QS[st.level*2+q.qi];
   ctx.fillStyle='rgba(5,10,25,0.96)';ctx.fillRect(0,0,W,H);
-
-  // Header
   const hx=12,hw=W-24,hy=14,hh=42;
   rr(hx,hy,hw,hh,10,'#f5a623');
   ctx.fillStyle='#0d1117';ctx.font='bold 15px Courier New';ctx.textAlign='center';
   ctx.fillText(`❓  QUIZ LVL${st.level+1}  ·  CÂU ${q.qi+1}/2`,W/2,hy+hh/2+6);
 
-  // Question
   ctx.font='bold 16px Courier New';ctx.fillStyle='#fff';ctx.textAlign='center';
   const lines=wrap(qd.q,W-30),qy=70;
   lines.forEach((l,i)=>ctx.fillText(l,W/2,qy+i*22));
   ctx.fillStyle='#444';ctx.font='11px Courier New';
   ctx.fillText('Tap câu trả lời hoặc nhấn A/B/C/D',W/2,qy+lines.length*22+12);
 
-  // Buttons
   const top=qy+lines.length*22+26,bot=GROUND-10;
   const bH=Math.max(56,Math.floor((bot-top-21)/4));
   const bW=W-24,bx=12;
   q.btns=[];
   [0,1,2,3].forEach(i=>{
-    const by=top+i*(bH+7);
-    q.btns.push({x:bx,y:by,w:bW,h:bH});
+    const by=top+i*(bH+7);q.btns.push({x:bx,y:by,w:bW,h:bH});
     let bg,border,tc;
     if(q.chosen===-1){bg='rgba(15,40,75,0.9)';border='rgba(80,130,200,0.5)';tc='#ccc';}
     else if(i===qd.ans){bg='rgba(13,61,26,0.9)';border='#4ecdc4';tc='#4ecdc4';}
     else if(i===q.chosen){bg='rgba(61,13,13,0.9)';border='#ff6b6b';tc='#ff6b6b';}
     else{bg='rgba(8,18,35,0.9)';border='rgba(30,50,80,0.5)';tc='#333';}
     rr(bx,by,bW,bH,12,bg,border,2);
-    ctx.fillStyle=tc;ctx.font='bold 15px Courier New';ctx.textAlign='left';
-    ctx.fillText(qd.opts[i],bx+16,by+bH/2+6);
+    ctx.fillStyle=tc;ctx.font='bold 15px Courier New';ctx.textAlign='left';ctx.fillText(qd.opts[i],bx+16,by+bH/2+6);
     if(q.chosen!==-1&&i===qd.ans){ctx.fillStyle='#4ecdc4';ctx.font='bold 20px Courier New';ctx.textAlign='right';ctx.fillText('✓',bx+bW-14,by+bH/2+7);}
     if(q.chosen===i&&i!==qd.ans){ctx.fillStyle='#ff6b6b';ctx.font='bold 20px Courier New';ctx.textAlign='right';ctx.fillText('✗',bx+bW-14,by+bH/2+7);}
   });
-
   if(q.chosen!==-1){
     const ok=q.chosen===qd.ans,ry=top+4*(bH+7)+2;
-    if(ry<H-10){
-      rr(12,ry,W-24,32,8,ok?'rgba(78,205,196,0.15)':'rgba(255,107,107,0.15)',ok?'#4ecdc4':'#ff6b6b',2);
-      ctx.fillStyle=ok?'#4ecdc4':'#ff6b6b';ctx.font='bold 14px Courier New';ctx.textAlign='center';
-      ctx.fillText(ok?'✓  Chính xác!  +300đ':'✗  Sai rồi!  -1000đ',W/2,ry+20);
-    }
+    if(ry<H-10){rr(12,ry,W-24,32,8,ok?'rgba(78,205,196,0.15)':'rgba(255,107,107,0.15)',ok?'#4ecdc4':'#ff6b6b',2);ctx.fillStyle=ok?'#4ecdc4':'#ff6b6b';ctx.font='bold 14px Courier New';ctx.textAlign='center';ctx.fillText(ok?'✓  Chính xác!  +300đ':'✗  Sai rồi!  -1000đ',W/2,ry+20);}
   }
 }
 
 // ─── LEVEL INTRO ─────────────────────────────────────────────────
 function drawIntro(st){
   const lv=LEVELS[st.level];
-  drawBG(st);
-  ctx.fillStyle='rgba(3,6,18,0.9)';ctx.fillRect(0,0,W,H);
-
-  // Build layout sizes
+  drawBG(st);ctx.fillStyle='rgba(3,6,18,0.9)';ctx.fillRect(0,0,W,H);
   const prevP=st.level>0?LEVELS[st.level-1].parts:[];
   const parts=lv.parts,cols=Math.min(4,parts.length),rows=Math.ceil(parts.length/cols);
   const IS=Math.min(48,Math.floor((W-32)/cols)-10);
   const cellW=Math.floor((W-20)/cols),cellH=IS+22;
-  const eIS=Math.min(44,Math.floor((W-24)/3)-12);
-  const eCellW=Math.floor((W-16)/3);
-
-  // Compute total content height
-  const C={hdr:42,prod:28,div1:14,lbl1:18,grid:rows*cellH,div2:14,lbl2:18,egrid:eIS+18,hint:16,btn:26,padV:20};
-  const oh=C.hdr+C.prod+C.div1+C.lbl1+C.grid+C.div2+C.lbl2+C.egrid+C.hint+C.btn+C.padV;
-  const fitH=Math.min(oh,H-20);
-  const oy=Math.max(6,(H-fitH)/2),ox=8,OW=W-16;
+  const eIS=Math.min(44,Math.floor((W-24)/3)-12),eCellW=Math.floor((W-16)/3);
+  const C={hdr:42,prod:28,div:14,lbl:18,grid:rows*cellH,egrid:eIS+18,hint:16,btn:26,padV:20};
+  const oh=C.hdr+C.prod+C.div+C.lbl+C.grid+C.div+C.lbl+C.egrid+C.hint+C.btn+C.padV;
+  const fitH=Math.min(oh,H-16),oy=Math.max(4,(H-fitH)/2),ox=8,OW=W-16;
 
   rr(ox,oy,OW,fitH,12,'#0a1220','#f5a623',2);
   rr(ox,oy,OW,C.hdr,12,'#f5a623');rr(ox,oy+C.hdr-12,OW,12,0,'#f5a623');
   ctx.fillStyle='#0d1117';ctx.font='bold 14px Courier New';ctx.textAlign='center';
   ctx.fillText(`LEVEL ${st.level+1}  ·  ${lv.year}  —  ${lv.name}`,W/2,oy+C.hdr/2+6);
 
-  let cy=oy+C.hdr+10;
+  let cy=oy+C.hdr+8;
   ctx.fillStyle='#f5a623';ctx.font='bold 15px Courier New';ctx.textAlign='center';
   ctx.fillText(`Chế tạo ${lv.emoji}  ${lv.product}`,W/2,cy+16);cy+=C.prod;
-
-  ctx.strokeStyle='#1e3a5f';ctx.lineWidth=1;
-  ctx.beginPath();ctx.moveTo(ox+12,cy+4);ctx.lineTo(ox+OW-12,cy+4);ctx.stroke();cy+=C.div1;
-
+  ctx.strokeStyle='#1e3a5f';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(ox+12,cy+4);ctx.lineTo(ox+OW-12,cy+4);ctx.stroke();cy+=C.div;
   ctx.fillStyle='#4ecdc4';ctx.font='bold 13px Courier New';ctx.textAlign='center';
-  ctx.fillText('✅  THU THẬP',W/2,cy+13);cy+=C.lbl1;
+  ctx.fillText('✅  THU THẬP',W/2,cy+13);cy+=C.lbl;
 
-  // Items grid
   const gridX=ox+8,gridY=cy;
   parts.forEach((p,i)=>{
-    const col=i%cols,row=Math.floor(i/cols);
-    const px=gridX+col*cellW+(cellW-IS)/2,py=gridY+row*cellH;
+    const col=i%cols,row=Math.floor(i/cols),px=gridX+col*cellW+(cellW-IS)/2,py=gridY+row*cellH;
     const isNew=st.level>0&&!prevP.includes(p);
-    if(isNew){
-      rr(px-3,py-3,IS+6,IS+8,4,'rgba(78,205,196,0.12)','#4ecdc4',1.5);
-      ctx.fillStyle='#4ecdc4';ctx.font='bold 9px Courier New';ctx.textAlign='center';
-      ctx.fillText('MỚI',px+IS/2,py-5);
-    }
+    if(isNew){rr(px-3,py-3,IS+6,IS+8,4,'rgba(78,205,196,0.12)','#4ecdc4',1.5);ctx.fillStyle='#4ecdc4';ctx.font='bold 9px Courier New';ctx.textAlign='center';ctx.fillText('MỚI',px+IS/2,py-5);}
     if(!drawImg(IMGS[IKEY[p]],px,py,IS))rr(px,py,IS,IS,4,'#4ecdc4');
-    ctx.fillStyle=isNew?'#4ecdc4':'#888';ctx.font=`${isNew?'bold ':''}10px Courier New`;
-    ctx.textAlign='center';ctx.fillText(PLABEL[p],px+IS/2,py+IS+14);
+    ctx.fillStyle=isNew?'#4ecdc4':'#888';ctx.font=`${isNew?'bold ':''}10px Courier New`;ctx.textAlign='center';ctx.fillText(PLABEL[p],px+IS/2,py+IS+14);
   });
   cy+=C.grid;
 
-  ctx.strokeStyle='#1e3a5f';ctx.lineWidth=1;
-  ctx.beginPath();ctx.moveTo(ox+12,cy+4);ctx.lineTo(ox+OW-12,cy+4);ctx.stroke();cy+=C.div2;
-
+  ctx.strokeStyle='#1e3a5f';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(ox+12,cy+4);ctx.lineTo(ox+OW-12,cy+4);ctx.stroke();cy+=C.div;
   ctx.fillStyle='#ff6b6b';ctx.font='bold 13px Courier New';ctx.textAlign='center';
-  ctx.fillText('🚫  TRÁNH',W/2,cy+13);cy+=C.lbl2;
+  ctx.fillText('🚫  TRÁNH',W/2,cy+13);cy+=C.lbl;
 
-  // Enemies
   [{type:'invoice',label:'Hóa đơn'},{type:'rival',label:'Đối thủ'},{type:'bug',label:'Lỗi KT'}].forEach((e,i)=>{
     const ex=ox+8+i*eCellW+(eCellW-eIS)/2,ey=cy;
     rr(ex-3,ey-3,eIS+6,eIS+8,4,'rgba(255,107,107,0.08)','#ff6b6b44',1);
     if(!drawImg(IMGS[e.type],ex,ey,eIS))rr(ex,ey,eIS,eIS,4,'#ff6b6b');
-    ctx.fillStyle='#ff9999';ctx.font='10px Courier New';ctx.textAlign='center';
-    ctx.fillText(e.label,ex+eIS/2,ey+eIS+14);
+    ctx.fillStyle='#ff9999';ctx.font='10px Courier New';ctx.textAlign='center';ctx.fillText(e.label,ex+eIS/2,ey+eIS+14);
   });
   cy+=C.egrid;
 
   ctx.fillStyle='#444';ctx.font='10px Courier New';ctx.textAlign='center';
-  ctx.fillText('+300đ mỗi lk  ·  Quiz đúng +300đ  ·  Sai -1000đ',W/2,cy+12);cy+=C.hint;
-
+  ctx.fillText('+300đ mỗi lk  ·  Đúng +300  ·  Sai -1000',W/2,cy+12);cy+=C.hint;
   rr(ox+10,cy+4,OW-20,C.btn,6,'rgba(245,166,35,0.12)','#f5a623',1.5);
   ctx.fillStyle='#f5a623';ctx.font='bold 13px Courier New';ctx.textAlign='center';
-  ctx.fillText('▶  Tap hoặc Space để bắt đầu',W/2,cy+4+C.btn/2+5);
+  ctx.fillText('▶  Tap để bắt đầu',W/2,cy+4+C.btn/2+5);
 }
 
 // ─── LEVEL CLEAR ─────────────────────────────────────────────────
@@ -540,22 +452,18 @@ function drawClear(st){
   ctx.fillStyle='#0d1117';ctx.font='bold 15px Courier New';ctx.textAlign='center';
   ctx.fillText(`✓  LEVEL ${st.level+1} HOÀN THÀNH!`,W/2,oy+26);
   ctx.font='42px serif';ctx.fillText(lv.emoji,W/2,oy+82);
-  ctx.fillStyle='#f5a623';ctx.font='bold 16px Courier New';
-  ctx.fillText(`${lv.product} đã chế tạo!`,W/2,oy+104);
-  ctx.fillStyle='#4ecdc4';ctx.font='13px Courier New';
-  ctx.fillText(`Điểm: ${st.score}`,W/2,oy+124);
+  ctx.fillStyle='#f5a623';ctx.font='bold 16px Courier New';ctx.fillText(`${lv.product} đã chế tạo!`,W/2,oy+104);
+  ctx.fillStyle='#4ecdc4';ctx.font='13px Courier New';ctx.fillText(`Điểm: ${st.score}`,W/2,oy+124);
   if(st.level<2){ctx.fillStyle='#666';ctx.font='11px Courier New';ctx.fillText(`Tiếp → Level ${st.level+2}: ${LEVELS[st.level+1].parts.length} linh kiện`,W/2,oy+144);}
   const prog=1-st.clearT/200;
   rr(ox+16,oy+OH-24,OW-32,10,4,'rgba(255,255,255,0.07)');
   rr(ox+16,oy+OH-24,(OW-32)*prog,10,4,'#f5a623');
-  ctx.fillStyle='#555';ctx.font='10px Courier New';
-  ctx.fillText('Tap hoặc Space để tiếp tục',W/2,oy+OH-5);
+  ctx.fillStyle='#555';ctx.font='10px Courier New';ctx.fillText('Tap để tiếp tục',W/2,oy+OH-5);
 }
 
 // ─── SPAWN / PHYSICS ─────────────────────────────────────────────
 function spawn(st){
-  const lv=LEVELS[st.level];
-  const need=lv.parts.filter(p=>!st.collected.includes(p));
+  const lv=LEVELS[st.level],need=lv.parts.filter(p=>!st.collected.includes(p));
   if(!need.length)return;
   const enemy=Math.random()<lv.eRatio;
   const type=enemy?ENEMIES[Math.floor(Math.random()*3)]:need[Math.floor(Math.random()*need.length)];
@@ -573,28 +481,26 @@ function update(st){
   if(q.on)return;
 
   const p=st.player;
-  if(keys['ArrowLeft']||vk.left){p.vx=-4;p.face=-1;}
-  else if(keys['ArrowRight']||vk.right){p.vx=4;p.face=1;}
+  if(touchMoveX!==null){
+    if(touchMoveX<W/2){p.vx=-4;p.face=-1;}else{p.vx=4;p.face=1;}
+  } else if(keys['ArrowLeft']){p.vx=-4;p.face=-1;}
+  else if(keys['ArrowRight']){p.vx=4;p.face=1;}
   else p.vx=0;
+
   p.vy+=GRAVITY;p.x+=p.vx;p.y+=p.vy;
   if(p.y>=GROUND-PLAYER_H){p.y=GROUND-PLAYER_H;p.vy=0;p.ground=true;}else p.ground=false;
   if(p.x<0)p.x=0;if(p.x+PLAYER_W>W)p.x=W-PLAYER_W;
 
-  st.frames++;
-  st.speed=LEVELS[st.level].speed+st.frames*0.0006;
-  st.spawnT++;
-  if(st.spawnT>=st.spawnI){spawn(st);st.spawnT=0;st.spawnI=Math.max(45,LEVELS[st.level].spawnInt-st.frames*0.04);}
-
+  st.frames++;st.speed=LEVELS[st.level].speed+st.frames*0.0006;
+  st.spawnT++;if(st.spawnT>=st.spawnI){spawn(st);st.spawnT=0;st.spawnI=Math.max(45,LEVELS[st.level].spawnInt-st.frames*0.04);}
   st.items.forEach(it=>{it.vy=Math.min(it.vy+0.06,3.5);it.y+=it.vy;});
   st.items=st.items.filter(it=>!it.collected&&it.y<H+ITEM_SIZE);
-
   st.items.forEach(it=>{
     if(it.collected)return;
     if(overlap(p.x+6,p.y+6,PLAYER_W-12,PLAYER_H-10,it.x,it.y,ITEM_SIZE,ITEM_SIZE)){
       it.collected=true;
       if(it.enemy){st.lives--;st.flash=20;st.flashC='red';if(st.lives<=0){gameOver(st,it.type);return;}}
-      else{if(!st.collected.includes(it.type)){st.collected.push(it.type);st.score+=300;}
-           if(st.collected.length===LEVELS[st.level].parts.length){st.clear=true;st.clearT=200;}}
+      else{if(!st.collected.includes(it.type)){st.collected.push(it.type);st.score+=300;}if(st.collected.length===LEVELS[st.level].parts.length){st.clear=true;st.clearT=200;}}
     }
   });
   if(st.flash>0)st.flash--;
@@ -617,15 +523,9 @@ function render(st){
   st.items.forEach(it=>drawItem(it));
   drawPlayer(st.player);
   drawTopBar(st);
-  drawProgress(st);
+  drawProgressAndLives(st);
   drawQuizBar(st);
-
-  if(st.flash>0){
-    ctx.fillStyle=st.flashC==='green'?`rgba(50,220,120,${st.flash/30*0.35})`:`rgba(255,50,50,${st.flash/30*0.4})`;
-    ctx.fillRect(0,0,W,H);
-  }
-
-  drawVBtns(st);
+  if(st.flash>0){ctx.fillStyle=st.flashC==='green'?`rgba(50,220,120,${st.flash/30*0.35})`:`rgba(255,50,50,${st.flash/30*0.4})`;ctx.fillRect(0,0,W,H);}
   if(st.quiz.on)drawQuiz(st);
   if(st.clear)drawClear(st);
 }
@@ -636,11 +536,11 @@ function startGame(){
   if(!sc)return;
   ['title-screen','game-over-screen','win-screen'].forEach(id=>document.getElementById(id).classList.add('hidden'));
   if(animId)cancelAnimationFrame(animId);
-  resizeCanvas();state=fresh();state.running=true;loop();
+  resizeCanvas();state=fresh();state.running=true;touchMoveX=null;loop();
 }
 
 function gameOver(st,cause){
-  st.running=false;cancelAnimationFrame(animId);
+  st.running=false;cancelAnimationFrame(animId);touchMoveX=null;
   const m={invoice:'Chi phí nuốt chửng startup! 💸',rival:'Đối thủ đã nghiền nát bạn! 🤖',bug:'Lỗi kỹ thuật sụp đổ! ⚡'};
   const rank=getRank(st.score),next=getNext(st.score);
   document.getElementById('gameover-msg').textContent=m[cause]||'Thử lại!';
@@ -650,11 +550,10 @@ function gameOver(st,cause){
 }
 
 function win(st){
-  st.running=false;cancelAnimationFrame(animId);
+  st.running=false;cancelAnimationFrame(animId);touchMoveX=null;
   const rank=getRank(st.score),next=getNext(st.score);
   const msgs={0:'Chào mừng đến thế giới công nghệ!',900:'Code chạy rồi, giờ đến phần khó hơn!',2200:'Bạn hiểu cả phần cứng lẫn phần mềm!',3800:'Dẫn dắt team đến những điều vĩ đại!',5400:'Tầm nhìn chiến lược, quyết đoán tuyệt đối!',6800:'Think Different. Steve Jobs tự hào về bạn.'};
-  const el=document.getElementById('win-rank-name');
-  el.textContent=rank.name.toUpperCase();el.style.color=rank.color;el.style.textShadow=`0 0 20px ${rank.color}`;
+  const el=document.getElementById('win-rank-name');el.textContent=rank.name.toUpperCase();el.style.color=rank.color;el.style.textShadow=`0 0 20px ${rank.color}`;
   document.getElementById('win-rank-emoji').textContent=rank.emoji;
   document.getElementById('win-rank-msg').textContent=msgs[rank.min]||'';
   document.getElementById('win-score').textContent=`Tổng điểm: ${st.score}`;
