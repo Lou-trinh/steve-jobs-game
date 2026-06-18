@@ -8,752 +8,657 @@
   <title>Steve Jobs — Garage 1976</title>
   <style>
     * { margin:0; padding:0; box-sizing:border-box; }
-    html, body {
-      width:100%; height:100%;
-      overflow:hidden; touch-action:none;
-      background:#1a1a2e;
-      font-family:'Courier New',monospace; color:#fff;
-    }
+    html, body { width:100%; height:100%; overflow:hidden; touch-action:none; background:#0d1117; font-family:'Courier New',monospace; color:#fff; }
 
-    /* Full-screen canvas — always behind screens */
-    canvas {
-      position:fixed; top:0; left:0;
-      width:100vw; height:100dvh;
-      display:block; touch-action:none;
-    }
+    canvas { position:fixed; top:0; left:0; width:100vw; height:100dvh; display:block; touch-action:none; }
 
-    /* ── Screens sit on top of canvas ── */
     .screen {
       position:fixed; inset:0; z-index:10;
-      display:flex; flex-direction:column;
-      align-items:center; justify-content:flex-start;
+      display:flex; flex-direction:column; align-items:center; justify-content:flex-start;
       overflow-y:auto; -webkit-overflow-scrolling:touch;
-      background:#1a1a2e;
-      padding:1rem 0.9rem 1.5rem; gap:0.6rem;
+      background:#0d1117; padding:1.2rem 1rem 2rem; gap:0.75rem;
     }
     .hidden { display:none !important; }
 
-    h1 { font-size:clamp(1.6rem,6vw,2.4rem); color:#f5a623; text-shadow:0 0 18px #f5a623; }
-    h2 { font-size:clamp(1.3rem,5vw,1.8rem); color:#f5a623; text-shadow:0 0 14px #f5a623; }
-    .subtitle { color:#aaa; font-size:clamp(0.72rem,2.2vw,0.9rem); text-align:center; }
+    h1 { font-size:clamp(1.8rem,7vw,2.6rem); color:#f5a623; text-shadow:0 0 20px #f5a623; letter-spacing:2px; }
+    h2 { font-size:clamp(1.4rem,5.5vw,2rem); color:#f5a623; text-shadow:0 0 14px #f5a623; }
+    .subtitle { color:#888; font-size:clamp(0.8rem,2.5vw,1rem); text-align:center; }
 
     .instructions {
-      background:#0f3460; border:1px solid #f5a623;
-      border-radius:10px; padding:0.7rem 1rem;
-      line-height:1.9; font-size:clamp(0.7rem,2vw,0.86rem);
-      width:100%; max-width:460px;
+      background:#111827; border:1px solid #f5a62366;
+      border-radius:12px; padding:0.9rem 1.2rem;
+      line-height:2; font-size:clamp(0.8rem,2.3vw,0.95rem);
+      width:100%; max-width:480px;
     }
-    .collect { color:#4ecdc4; }
-    .avoid   { color:#ff6b6b; }
+    .collect { color:#4ecdc4; } .avoid { color:#ff6b6b; }
 
-    .select-title { color:#f5a623; font-size:clamp(0.78rem,2.3vw,0.9rem); letter-spacing:2px; }
-    .char-grid {
-      display:flex; gap:0.5rem;
-      justify-content:center; flex-wrap:wrap;
-      width:100%; max-width:460px;
+    .levels-row { display:flex; gap:0.5rem; flex-wrap:wrap; justify-content:center; width:100%; max-width:480px; }
+    .lv-card {
+      background:#111827; border:1px solid #2a4a7f; border-radius:10px;
+      padding:0.5rem 0.8rem; text-align:center;
+      font-size:clamp(0.72rem,2vw,0.82rem); color:#aaa; flex:1; min-width:110px;
     }
+    .lv-card .lv-num { color:#f5a623; font-weight:bold; font-size:1em; }
+    .lv-card .lv-parts { color:#4ecdc4; margin-top:0.15rem; }
+
+    .select-title { color:#f5a623; font-size:clamp(0.85rem,2.5vw,1rem); letter-spacing:3px; }
+    .char-grid { display:flex; gap:0.6rem; justify-content:center; flex-wrap:wrap; width:100%; max-width:480px; }
     .char-card {
-      border:2px solid #2a4a7f; border-radius:10px;
-      padding:0.45rem 0.3rem; cursor:pointer;
-      text-align:center; background:#0d1b35;
-      width:clamp(70px,17vw,86px);
+      border:2px solid #2a4a7f; border-radius:12px; padding:0.6rem 0.4rem; cursor:pointer;
+      text-align:center; background:#111827; width:clamp(74px,18vw,90px);
       transition:all 0.15s; touch-action:manipulation;
     }
-    .char-card:hover, .char-card:active { border-color:#f5a623; transform:translateY(-3px); }
-    .char-card.selected {
-      border-color:#f5a623; background:rgba(245,166,35,0.13);
-      box-shadow:0 0 18px rgba(245,166,35,0.5);
-    }
-    .char-card img { width:clamp(50px,13vw,66px); height:clamp(58px,15vw,78px); object-fit:contain; display:block; margin:0 auto; }
-    .char-name { font-size:clamp(0.58rem,1.7vw,0.7rem); margin-top:0.25rem; color:#aaa; }
+    .char-card:active { border-color:#f5a623; transform:scale(0.96); }
+    .char-card.selected { border-color:#f5a623; background:rgba(245,166,35,0.12); box-shadow:0 0 20px rgba(245,166,35,0.4); }
+    .char-card img { width:clamp(52px,14vw,68px); height:clamp(62px,16vw,80px); object-fit:contain; display:block; margin:0 auto; }
+    .char-name { font-size:clamp(0.62rem,1.8vw,0.74rem); margin-top:0.3rem; color:#888; }
     .char-card.selected .char-name { color:#f5a623; font-weight:bold; }
 
-    .levels-row { display:flex; gap:0.5rem; flex-wrap:wrap; justify-content:center; width:100%; max-width:460px; }
-    .lv-card {
-      background:#0d1b35; border:1px solid #2a4a7f;
-      border-radius:8px; padding:0.35rem 0.6rem;
-      text-align:center; font-size:clamp(0.62rem,1.9vw,0.76rem); color:#aaa;
-      flex:1; min-width:100px;
-    }
-    .lv-card .lv-num { color:#f5a623; font-weight:bold; }
-    .lv-card .lv-parts { color:#4ecdc4; margin-top:0.1rem; }
-
     .btn {
-      background:#f5a623; color:#1a1a2e;
-      border:none; padding:0.7rem 1.8rem;
-      font-size:clamp(0.88rem,2.8vw,1.05rem);
+      background:linear-gradient(135deg,#f5a623,#e8960f); color:#0d1117;
+      border:none; padding:0.85rem 2.2rem; font-size:clamp(0.95rem,3vw,1.1rem);
       font-family:'Courier New',monospace; font-weight:bold;
-      border-radius:6px; cursor:pointer; letter-spacing:1px;
-      touch-action:manipulation;
+      border-radius:8px; cursor:pointer; letter-spacing:2px;
+      touch-action:manipulation; box-shadow:0 4px 20px rgba(245,166,35,0.4);
       transition:transform 0.1s, box-shadow 0.1s;
     }
-    .btn:hover:not(:disabled), .btn:active:not(:disabled) { transform:scale(1.05); box-shadow:0 0 14px #f5a623; }
-    .btn:disabled { opacity:0.4; cursor:not-allowed; }
+    .btn:active:not(:disabled) { transform:scale(0.97); }
+    .btn:disabled { opacity:0.35; cursor:not-allowed; }
 
-    .result-msg { font-size:clamp(0.82rem,2.5vw,0.98rem); color:#ccc; text-align:center; }
-    .win-products { font-size:clamp(1.3rem,5vw,2rem); letter-spacing:5px; }
-    #win-score, #gameover-rank { color:#f5a623; font-size:clamp(0.82rem,2.4vw,0.98rem); text-align:center; }
-    #win-next-rank, #gameover-next { color:#aaa; font-size:clamp(0.68rem,2vw,0.8rem); text-align:center; }
+    .result-msg { font-size:clamp(0.9rem,2.8vw,1.05rem); color:#ccc; text-align:center; }
+    .win-products { font-size:clamp(1.5rem,5vw,2.2rem); letter-spacing:6px; }
+    #win-score, #gameover-rank { color:#f5a623; font-size:clamp(0.9rem,2.6vw,1.05rem); text-align:center; }
+    #win-next-rank, #gameover-next { color:#666; font-size:clamp(0.75rem,2.2vw,0.88rem); text-align:center; }
   </style>
 </head>
 <body>
 
-<!-- ══ TITLE ══ -->
 <div id="title-screen" class="screen">
   <h1>🍎 STEVE JOBS</h1>
-  <div class="subtitle">Los Altos → Cupertino → Apple HQ · 1976–1984</div>
+  <div class="subtitle">Los Altos · Cupertino · Apple HQ · 1976–1984</div>
   <div class="instructions">
-    <div><span class="collect">THU THẬP:</span> Linh kiện rơi từ trên trời</div>
-    <div><span class="avoid">TRÁNH:</span> Hóa đơn 💸 &nbsp;Đối thủ 🤖 &nbsp;Lỗi kỹ thuật ⚡</div>
-    <div style="color:#f5a623">❓ 2 Quiz/màn — Đúng +300đ · Sai -1000đ</div>
-    <div style="color:#aaa;font-size:0.78rem">◀ ▶ Di chuyển &nbsp;|&nbsp; ▲ Nhảy</div>
+    <div><span class="collect">THU THẬP</span> linh kiện rơi từ trên trời ⬇️</div>
+    <div><span class="avoid">TRÁNH</span> Hóa đơn 💸 · Đối thủ 🤖 · Lỗi ⚡</div>
+    <div style="color:#f5a623">❓ 2 câu Quiz/màn · Đúng +300 · Sai -1000</div>
+    <div style="color:#555;font-size:0.85em">◀ ▶ Di chuyển · ▲ Nhảy</div>
   </div>
   <div class="levels-row">
-    <div class="lv-card"><div class="lv-num">LV1·1976</div><div>Garage</div><div class="lv-parts">4 lk → 🍎</div></div>
-    <div class="lv-card"><div class="lv-num">LV2·1977</div><div>Workshop</div><div class="lv-parts">6 lk → 🖥️</div></div>
-    <div class="lv-card"><div class="lv-num">LV3·1984</div><div>Apple HQ</div><div class="lv-parts">8 lk → 💻</div></div>
+    <div class="lv-card"><div class="lv-num">LV1·1976</div>Garage<div class="lv-parts">4 lk → 🍎</div></div>
+    <div class="lv-card"><div class="lv-num">LV2·1977</div>Workshop<div class="lv-parts">6 lk → 🖥️</div></div>
+    <div class="lv-card"><div class="lv-num">LV3·1984</div>Apple HQ<div class="lv-parts">8 lk → 💻</div></div>
   </div>
   <div class="select-title">— CHỌN NHÂN VẬT —</div>
   <div class="char-grid">
-    <div class="char-card" onclick="selectChar(1)"><img src="image/player_1.png" alt="1"><div class="char-name">Steve</div></div>
-    <div class="char-card" onclick="selectChar(2)"><img src="image/player_2.png" alt="2"><div class="char-name">Woz</div></div>
-    <div class="char-card" onclick="selectChar(3)"><img src="image/player_3.png" alt="3"><div class="char-name">Bill</div></div>
-    <div class="char-card" onclick="selectChar(4)"><img src="image/player_4.png" alt="4"><div class="char-name">Jony</div></div>
-    <div class="char-card" onclick="selectChar(5)"><img src="image/player_5.png" alt="5"><div class="char-name">Tim</div></div>
+    <div class="char-card" onclick="selectChar(1)"><img src="image/player_1.png" alt=""><div class="char-name">Steve</div></div>
+    <div class="char-card" onclick="selectChar(2)"><img src="image/player_2.png" alt=""><div class="char-name">Woz</div></div>
+    <div class="char-card" onclick="selectChar(3)"><img src="image/player_3.png" alt=""><div class="char-name">Bill</div></div>
+    <div class="char-card" onclick="selectChar(4)"><img src="image/player_4.png" alt=""><div class="char-name">Jony</div></div>
+    <div class="char-card" onclick="selectChar(5)"><img src="image/player_5.png" alt=""><div class="char-name">Tim</div></div>
   </div>
   <button class="btn" id="start-btn" onclick="startGame()" disabled>▶  BẮT ĐẦU</button>
 </div>
 
-<!-- ══ GAME OVER ══ -->
 <div id="game-over-screen" class="screen hidden">
-  <h2 style="margin-top:2.5rem">GAME OVER</h2>
+  <h2 style="margin-top:3rem">GAME OVER</h2>
   <div class="result-msg" id="gameover-msg"></div>
   <div id="gameover-rank"></div>
   <div id="gameover-next"></div>
-  <button class="btn" style="margin-top:1rem" onclick="backToTitle()">↩  CHỌN NHÂN VẬT</button>
+  <button class="btn" style="margin-top:1.5rem" onclick="backToTitle()">↩  CHỌN LẠI</button>
 </div>
 
-<!-- ══ WIN ══ -->
 <div id="win-screen" class="screen hidden">
-  <div id="win-rank-emoji" style="font-size:3rem;margin-top:2.5rem">🏆</div>
+  <div id="win-rank-emoji" style="font-size:3.5rem;margin-top:3rem">🏆</div>
   <h1 id="win-rank-name">HUYỀN THOẠI</h1>
   <div class="win-products">🍎 🖥️ 💻</div>
-  <div style="color:#f5a623;font-size:clamp(0.82rem,2.5vw,1rem)">Apple I · Apple II · Macintosh</div>
+  <div style="color:#f5a623;font-size:clamp(0.85rem,2.5vw,1rem)">Apple I · Apple II · Macintosh</div>
   <div class="result-msg" id="win-rank-msg"></div>
   <div id="win-score"></div>
   <div id="win-next-rank"></div>
-  <button class="btn" style="margin-top:1rem" onclick="backToTitle()">↩  CHỌN NHÂN VẬT</button>
+  <button class="btn" style="margin-top:1.5rem" onclick="backToTitle()">↩  CHỌN LẠI</button>
 </div>
 
-<!-- ══ CANVAS (full-screen) ══ -->
 <canvas id="game"></canvas>
 
 <script>
-// ─── CANVAS: fill entire screen, size set dynamically ────────────
 const canvas = document.getElementById('game');
 const ctx    = canvas.getContext('2d');
-
 let W, H, GROUND, VBTN;
 
 function resizeCanvas(){
   W = canvas.width  = window.innerWidth;
   H = canvas.height = window.innerHeight;
-  GROUND = H - 162;          // game area ends here
+  GROUND = H - 155;
   VBTN = {
-    left:  { x:12,    y:H-115, w:82, h:102 },
-    right: { x:104,   y:H-115, w:82, h:102 },
-    jump:  { x:W-106, y:H-115, w:94, h:102 },
+    left:  { x:10,    y:H-138, w:90, h:120 },
+    right: { x:110,   y:H-138, w:90, h:120 },
+    jump:  { x:W-112, y:H-138, w:102,h:120 },
   };
 }
 resizeCanvas();
 window.addEventListener('resize', resizeCanvas);
 
-// ─── CONSTANTS ───────────────────────────────────────────────────
-const GRAVITY  = 0.5;
-const JUMP_V   = -13;
-const PLAYER_W = 50, PLAYER_H = 72;
-const ITEM_SIZE = 42;
+const GRAVITY=0.5, JUMP_V=-13, PLAYER_W=52, PLAYER_H=74, ITEM_SIZE=44;
 
-// ─── IMAGE LOADING ───────────────────────────────────────────────
-const IMGS = {};
-(function preload(){
-  const map = {
-    chip:'image/chip.png', mainboard:'image/Mainboard.png',
-    cpu:'image/CPU.png',   keyboard:'image/keyboard.png',
-    ram:'image/RAM.png',   psu:'image/PSU.png',
+// ─── IMAGES ──────────────────────────────────────────────────────
+const IMGS={};
+(function(){
+  const map={
+    chip:'image/chip.png', mainboard:'image/Mainboard.png', cpu:'image/CPU.png',
+    keyboard:'image/keyboard.png', ram:'image/RAM.png', psu:'image/PSU.png',
     monitor:'image/Monitor.png', fdd:'image/FDD.png',
-    invoice:'image/electricity_bill.png',
-    rival:'image/competitor.png',
-    bug:'image/technical_error.png',
+    invoice:'image/electricity_bill.png', rival:'image/competitor.png', bug:'image/technical_error.png',
   };
   Object.entries(map).forEach(([k,src])=>{ const i=new Image(); i.src=src; IMGS[k]=i; });
   [1,2,3,4,5].forEach(i=>{ const img=new Image(); img.src=`image/player_${i}.png`; IMGS[`player${i}`]=img; });
   [1,2,3].forEach(i=>{ const img=new Image(); img.src=`image/background_${i}.png`; IMGS[`bg${i}`]=img; });
 })();
+const IKEY={chip:'chip',mainboard:'mainboard',cpu:'cpu',keyboard:'keyboard',ram:'ram',power:'psu',monitor:'monitor',disk:'fdd',invoice:'invoice',rival:'rival',bug:'bug'};
+function imgOk(img){ return img&&img.complete&&img.naturalWidth>0; }
 
-const ITEM_IMG_KEY = {
-  chip:'chip', mainboard:'mainboard', cpu:'cpu', keyboard:'keyboard',
-  ram:'ram', power:'psu', monitor:'monitor', disk:'fdd',
-  invoice:'invoice', rival:'rival', bug:'bug',
-};
-
-// ─── LEVELS ──────────────────────────────────────────────────────
-const LEVELS = [
-  { name:'Garage — Los Altos', year:'1976', product:'Apple I', productEmoji:'🍎',
-    parts:['chip','mainboard','cpu','keyboard'],
-    baseSpeed:3.2, spawnInterval:90, enemyRatio:0.42, quizAtParts:[1,3], floorTop:'#f5a623' },
-  { name:'Workshop — Cupertino', year:'1977', product:'Apple II', productEmoji:'🖥️',
-    parts:['chip','mainboard','cpu','keyboard','ram','power'],
-    baseSpeed:4.4, spawnInterval:72, enemyRatio:0.50, quizAtParts:[3,5], floorTop:'#52b788' },
-  { name:'Apple HQ — Infinite Loop', year:'1984', product:'Macintosh', productEmoji:'💻',
-    parts:['chip','mainboard','cpu','keyboard','ram','power','monitor','disk'],
-    baseSpeed:5.5, spawnInterval:58, enemyRatio:0.56, quizAtParts:[4,7], floorTop:'#e63946' },
+// ─── CONFIG ──────────────────────────────────────────────────────
+const LEVELS=[
+  {name:'Garage — Los Altos',year:'1976',product:'Apple I',emoji:'🍎',
+   parts:['chip','mainboard','cpu','keyboard'],
+   speed:3.2,spawnInt:90,eRatio:0.42,quiz:[1,3],color:'#f5a623'},
+  {name:'Workshop — Cupertino',year:'1977',product:'Apple II',emoji:'🖥️',
+   parts:['chip','mainboard','cpu','keyboard','ram','power'],
+   speed:4.4,spawnInt:72,eRatio:0.50,quiz:[3,5],color:'#52b788'},
+  {name:'Apple HQ — Infinite Loop',year:'1984',product:'Macintosh',emoji:'💻',
+   parts:['chip','mainboard','cpu','keyboard','ram','power','monitor','disk'],
+   speed:5.5,spawnInt:58,eRatio:0.56,quiz:[4,7],color:'#e63946'},
 ];
-
-// ─── QUIZ ────────────────────────────────────────────────────────
-const QUESTIONS = [
-  { q:"When was Steve Jobs born?",
-    opts:["A. 1950","B. 1955","C. 1960","D. 1965"], answer:1 },
-  { q:"Which company did Steve Jobs co-found in 1976?",
-    opts:["A. Microsoft","B. Google","C. Apple","D. Amazon"], answer:2 },
-  { q:"Which famous animated studio did Steve Jobs help develop?",
-    opts:["A. Disney","B. DreamWorks","C. Pixar","D. Universal Studios"], answer:2 },
-  { q:"What product was introduced by Apple in 2007?",
-    opts:["A. iPad","B. iMac","C. Apple Watch","D. iPhone"], answer:3 },
-  { q:"In which year did Steve Jobs return to Apple?",
-    opts:["A. 1997","B. 1990","C. 2000","D. 2005"], answer:0 },
-  { q:"Which quote is famously associated with Steve Jobs?",
-    opts:["A. \"Think Different.\"","B. \"Just Do It.\"","C. \"I'm Lovin' It.\"","D. \"Impossible Is Nothing.\""], answer:0 },
+const QS=[
+  {q:"When was Steve Jobs born?",opts:["A. 1950","B. 1955","C. 1960","D. 1965"],ans:1},
+  {q:"Which company did Steve Jobs co-found in 1976?",opts:["A. Microsoft","B. Google","C. Apple","D. Amazon"],ans:2},
+  {q:"Which animated studio did Steve Jobs help develop?",opts:["A. Disney","B. DreamWorks","C. Pixar","D. Universal"],ans:2},
+  {q:"What product did Apple introduce in 2007?",opts:["A. iPad","B. iMac","C. Apple Watch","D. iPhone"],ans:3},
+  {q:"When did Steve Jobs return to Apple?",opts:["A. 1997","B. 1990","C. 2000","D. 2005"],ans:0},
+  {q:"Which quote is famous from Steve Jobs?",opts:["A. \"Think Different.\"","B. \"Just Do It.\"","C. \"I'm Lovin' It.\"","D. \"Move Fast.\""],ans:0},
 ];
-
-// ─── RANKS ───────────────────────────────────────────────────────
-const RANKS = [
-  { name:'Tập Sự',         emoji:'🔵', color:'#6ab0ff', min:0,    msg:'Chào mừng đến thế giới công nghệ!' },
-  { name:'Lập Trình Viên', emoji:'💻', color:'#52b788', min:900,  msg:'Code chạy rồi, giờ đến phần khó hơn!' },
-  { name:'Kỹ Sư',          emoji:'⚙️',  color:'#ffd166', min:2200, msg:'Bạn hiểu cả phần cứng lẫn phần mềm!' },
-  { name:'Trưởng Nhóm',    emoji:'📋', color:'#f5a623', min:3800, msg:'Dẫn dắt team đến những điều vĩ đại!' },
-  { name:'CEO',             emoji:'👔', color:'#e63946', min:5400, msg:'Tầm nhìn chiến lược, quyết đoán tuyệt đối!' },
-  { name:'Huyền Thoại',    emoji:'🏆', color:'#f5a623', min:6800, msg:'Think Different. Steve Jobs sẽ tự hào về bạn.' },
+const RANKS=[
+  {name:'Tập Sự',       emoji:'🔵',color:'#6ab0ff',min:0},
+  {name:'Lập Trình Viên',emoji:'💻',color:'#52b788',min:900},
+  {name:'Kỹ Sư',        emoji:'⚙️', color:'#ffd166',min:2200},
+  {name:'Trưởng Nhóm',  emoji:'📋',color:'#f5a623',min:3800},
+  {name:'CEO',           emoji:'👔',color:'#e63946',min:5400},
+  {name:'Huyền Thoại',  emoji:'🏆',color:'#f5a623',min:6800},
 ];
-function getRank(s){ let r=RANKS[0]; for(const x of RANKS){ if(s>=x.min)r=x; else break; } return r; }
-function getNextRank(s){ return RANKS.find(r=>r.min>s)||null; }
-
-const PART_LABEL = {
-  chip:'💾Chip', mainboard:'🟩MB', cpu:'⚙️CPU', keyboard:'⌨️Key',
-  ram:'🔵RAM',   power:'🔋PSU',    monitor:'🖥️Mon', disk:'💿FDD',
-};
-const ENEMY_LIST = ['invoice','rival','bug'];
+const PLABEL={chip:'Chip',mainboard:'MB',cpu:'CPU',keyboard:'Keys',ram:'RAM',power:'PSU',monitor:'Mon',disk:'FDD'};
+const ENEMIES=['invoice','rival','bug'];
+function getRank(s){let r=RANKS[0];for(const x of RANKS){if(s>=x.min)r=x;else break;}return r;}
+function getNext(s){return RANKS.find(r=>r.min>s)||null;}
 
 // ─── VIRTUAL KEYS ────────────────────────────────────────────────
-const virtualKeys   = { left:false, right:false };
-const activeTouches = new Map();
-
-function canvasXY(cx,cy){
-  const r=canvas.getBoundingClientRect();
-  return { x:(cx-r.left)*(W/r.width), y:(cy-r.top)*(H/r.height) };
-}
-function inBtn(p,b){ return p.x>=b.x&&p.x<=b.x+b.w&&p.y>=b.y&&p.y<=b.y+b.h; }
-function syncVK(){
-  virtualKeys.left=false; virtualKeys.right=false;
-  activeTouches.forEach(p=>{
-    if(inBtn(p,VBTN.left))  virtualKeys.left=true;
-    if(inBtn(p,VBTN.right)) virtualKeys.right=true;
-  });
-}
+const vk={left:false,right:false};
+const AT=new Map();
+function cxy(cx,cy){const r=canvas.getBoundingClientRect();return{x:(cx-r.left)*(W/r.width),y:(cy-r.top)*(H/r.height)};}
+function inB(p,b){return p.x>=b.x&&p.x<=b.x+b.w&&p.y>=b.y&&p.y<=b.y+b.h;}
+function syncVK(){vk.left=false;vk.right=false;AT.forEach(p=>{if(inB(p,VBTN.left))vk.left=true;if(inB(p,VBTN.right))vk.right=true;});}
 
 // ─── STATE ───────────────────────────────────────────────────────
-let selectedChar=0, state={}, animId=null;
-
-function freshState(){
-  return {
-    running:false, level:0, score:0, levelScore:0, lives:3,
-    levelFrames:0, levelIntro:true,
-    scrollX:0, speed:LEVELS[0].baseSpeed,
-    collected:[], spawnTimer:0, spawnInterval:LEVELS[0].spawnInterval,
-    items:[],
-    player:{ x:W/2-PLAYER_W/2, y:GROUND-PLAYER_H, vx:0, vy:0, onGround:true, facing:1, frame:0, frameTimer:0 },
-    flash:0, flashColor:'red',
-    levelClear:false, levelClearTimer:0,
-    quiz:{ active:false, levelQIndex:0, chosen:-1, resultTimer:0, nextMilestoneIdx:0, buttons:[] },
-  };
+let sc=0, state={}, animId=null;
+function fresh(){
+  return{running:false,level:0,score:0,lives:3,frames:0,intro:true,
+    speed:LEVELS[0].speed,collected:[],spawnT:0,spawnI:LEVELS[0].spawnInt,items:[],
+    player:{x:W/2-PLAYER_W/2,y:GROUND-PLAYER_H,vx:0,vy:0,ground:true,face:1},
+    flash:0,flashC:'red',clear:false,clearT:0,
+    quiz:{on:false,qi:0,chosen:-1,rt:0,mi:0,btns:[]}};
 }
 
-// ─── CHAR SELECT ─────────────────────────────────────────────────
-function selectChar(n){
-  selectedChar=n;
-  document.querySelectorAll('.char-card').forEach((c,i)=>c.classList.toggle('selected',i+1===n));
-  document.getElementById('start-btn').disabled=false;
-}
-function backToTitle(){
-  ['game-over-screen','win-screen'].forEach(id=>document.getElementById(id).classList.add('hidden'));
-  document.getElementById('title-screen').classList.remove('hidden');
-}
+function selectChar(n){sc=n;document.querySelectorAll('.char-card').forEach((c,i)=>c.classList.toggle('selected',i+1===n));document.getElementById('start-btn').disabled=false;}
+function backToTitle(){['game-over-screen','win-screen'].forEach(id=>document.getElementById(id).classList.add('hidden'));document.getElementById('title-screen').classList.remove('hidden');}
 
-// ─── KEYBOARD ────────────────────────────────────────────────────
+// ─── INPUT ───────────────────────────────────────────────────────
 const keys={};
 document.addEventListener('keydown',e=>{
   keys[e.code]=true;
   if(!state.running)return;
-  if(state.levelIntro&&(e.code==='Space'||e.code==='Enter')){ state.levelIntro=false; return; }
-  if(state.levelClear&&(e.code==='Space'||e.code==='Enter')){ state.levelClearTimer=1; return; }
-  if((e.code==='Space'||e.code==='ArrowUp')&&!state.quiz.active&&!state.levelClear&&!state.levelIntro){ tryJump(); e.preventDefault(); }
-  if(state.quiz.active&&state.quiz.chosen===-1){
-    const m={KeyA:0,KeyB:1,KeyC:2,KeyD:3};
-    if(m[e.code]!==undefined) handleQuizAnswer(m[e.code]);
-  }
+  if(state.intro&&(e.code==='Space'||e.code==='Enter')){state.intro=false;return;}
+  if(state.clear&&(e.code==='Space'||e.code==='Enter')){state.clearT=1;return;}
+  if((e.code==='Space'||e.code==='ArrowUp')&&!state.quiz.on&&!state.clear&&!state.intro){jump();e.preventDefault();}
+  if(state.quiz.on&&state.quiz.chosen===-1){const m={KeyA:0,KeyB:1,KeyC:2,KeyD:3};if(m[e.code]!==undefined)answer(m[e.code]);}
 });
 document.addEventListener('keyup',e=>keys[e.code]=false);
 
-// ─── TOUCH ───────────────────────────────────────────────────────
-function handleCanvasTap(cx,cy){
+function tap(cx,cy){
   if(!state.running)return;
-  const pos=canvasXY(cx,cy);
-  if(state.levelIntro){ state.levelIntro=false; return; }
-  if(state.levelClear){ state.levelClearTimer=1; return; }
-  if(state.quiz.active&&state.quiz.chosen===-1){
-    state.quiz.buttons.forEach((btn,i)=>{
-      if(pos.x>=btn.x&&pos.x<=btn.x+btn.w&&pos.y>=btn.y&&pos.y<=btn.y+btn.h) handleQuizAnswer(i);
-    });
-  }
+  const p=cxy(cx,cy);
+  if(state.intro){state.intro=false;return;}
+  if(state.clear){state.clearT=1;return;}
+  if(state.quiz.on&&state.quiz.chosen===-1)state.quiz.btns.forEach((b,i)=>{if(p.x>=b.x&&p.x<=b.x+b.w&&p.y>=b.y&&p.y<=b.y+b.h)answer(i);});
 }
-canvas.addEventListener('click',e=>handleCanvasTap(e.clientX,e.clientY));
+canvas.addEventListener('click',e=>tap(e.clientX,e.clientY));
 canvas.addEventListener('touchstart',e=>{
   e.preventDefault();
   for(const t of e.changedTouches){
-    const pos=canvasXY(t.clientX,t.clientY);
-    activeTouches.set(t.identifier,pos);
-    if(state.running&&!state.levelIntro&&!state.levelClear&&!state.quiz.active&&inBtn(pos,VBTN.jump)) tryJump();
-    handleCanvasTap(t.clientX,t.clientY);
-  }
-  syncVK();
+    const p=cxy(t.clientX,t.clientY);
+    AT.set(t.identifier,p);
+    if(state.running&&!state.intro&&!state.clear&&!state.quiz.on&&inB(p,VBTN.jump))jump();
+    tap(t.clientX,t.clientY);
+  }syncVK();
 },{passive:false});
-canvas.addEventListener('touchmove',e=>{
-  e.preventDefault();
-  for(const t of e.changedTouches) activeTouches.set(t.identifier,canvasXY(t.clientX,t.clientY));
-  syncVK();
-},{passive:false});
-canvas.addEventListener('touchend',e=>{
-  for(const t of e.changedTouches) activeTouches.delete(t.identifier);
-  syncVK();
-},{passive:false});
+canvas.addEventListener('touchmove',e=>{e.preventDefault();for(const t of e.changedTouches)AT.set(t.identifier,cxy(t.clientX,t.clientY));syncVK();},{passive:false});
+canvas.addEventListener('touchend',e=>{for(const t of e.changedTouches)AT.delete(t.identifier);syncVK();},{passive:false});
 
-function tryJump(){ const p=state.player; if(p.onGround){p.vy=JUMP_V;p.onGround=false;} }
-function handleQuizAnswer(choice){
-  const quiz=state.quiz; if(quiz.chosen!==-1)return;
-  quiz.chosen=choice;
-  const qIdx=state.level*2+quiz.levelQIndex;
-  if(choice===QUESTIONS[qIdx].answer){ state.score+=300; state.levelScore+=300; state.flash=22; state.flashColor='green'; }
-  else{ state.score=Math.max(0,state.score-1000); state.levelScore=Math.max(0,state.levelScore-1000); state.flash=28; state.flashColor='red'; }
-  quiz.resultTimer=85;
+function jump(){const p=state.player;if(p.ground){p.vy=JUMP_V;p.ground=false;}}
+function answer(c){
+  const q=state.quiz;if(q.chosen!==-1)return;
+  q.chosen=c;
+  if(c===QS[state.level*2+q.qi].ans){state.score+=300;state.flash=22;state.flashC='green';}
+  else{state.score=Math.max(0,state.score-1000);state.flash=28;state.flashC='red';}
+  q.rt=90;
 }
 
-// ─── DRAW HELPERS ────────────────────────────────────────────────
+// ─── HELPERS ─────────────────────────────────────────────────────
 function rr(x,y,w,h,r,fill,stroke,lw){
   ctx.beginPath();
-  ctx.moveTo(x+r,y); ctx.lineTo(x+w-r,y); ctx.quadraticCurveTo(x+w,y,x+w,y+r);
-  ctx.lineTo(x+w,y+h-r); ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
-  ctx.lineTo(x+r,y+h); ctx.quadraticCurveTo(x,y+h,x,y+h-r);
-  ctx.lineTo(x,y+r); ctx.quadraticCurveTo(x,y,x+r,y); ctx.closePath();
+  ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+  ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+  ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+  ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();
   if(fill){ctx.fillStyle=fill;ctx.fill();}
   if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=lw||2;ctx.stroke();}
 }
-function imgReady(img){ return img&&img.complete&&img.naturalWidth>0; }
-function wrapText(text,maxW){
-  const words=text.split(' '),lines=[];let line='';
-  words.forEach(w=>{ const t=line?line+' '+w:w; if(ctx.measureText(t).width>maxW&&line){lines.push(line);line=w;}else line=t; });
-  if(line)lines.push(line); return lines;
+function wrap(txt,mw){
+  const ws=txt.split(' ');let lines=[],line='';
+  ws.forEach(w=>{const t=line?line+' '+w:w;if(ctx.measureText(t).width>mw&&line){lines.push(line);line=w;}else line=t;});
+  if(line)lines.push(line);return lines;
+}
+function drawImg(img,x,y,s){
+  if(!imgOk(img))return false;
+  try{
+    const sc=Math.min(s/img.naturalWidth,s/img.naturalHeight);
+    const dw=img.naturalWidth*sc,dh=img.naturalHeight*sc;
+    ctx.drawImage(img,Math.round(x+(s-dw)/2),Math.round(y+(s-dh)/2),Math.round(dw),Math.round(dh));
+  }catch(e){}
+  return true;
 }
 
 // ─── DRAW BACKGROUND ─────────────────────────────────────────────
-function drawBackground(st){
+function drawBG(st){
   const lv=LEVELS[st.level];
   const img=IMGS[`bg${st.level+1}`];
-  if(imgReady(img)){
-    // cover crop: fit landscape image into any screen shape
-    const iAR=img.naturalWidth/img.naturalHeight, cAR=W/H;
-    let sx=0,sy=0,sw=img.naturalWidth,sh=img.naturalHeight;
-    if(iAR>cAR){ sw=img.naturalHeight*cAR; sx=(img.naturalWidth-sw)/2; }
-    else        { sh=img.naturalWidth/cAR;  sy=(img.naturalHeight-sh)/2; }
-    ctx.drawImage(img,sx,sy,sw,sh,0,0,W,H);
-  } else {
-    ctx.fillStyle='#16213e'; ctx.fillRect(0,0,W,H);
+  let drew=false;
+  if(imgOk(img)){
+    try{
+      const iAR=img.naturalWidth/img.naturalHeight,cAR=W/H;
+      let sx=0,sy=0,sw=img.naturalWidth,sh=img.naturalHeight;
+      if(iAR>cAR){sw=Math.round(img.naturalHeight*cAR);sx=Math.round((img.naturalWidth-sw)/2);}
+      else{sh=Math.round(img.naturalWidth/cAR);sy=Math.round((img.naturalHeight-sh)/2);}
+      if(sw>0&&sh>0){ctx.drawImage(img,sx,sy,sw,sh,0,0,W,H);drew=true;}
+    }catch(e){}
   }
-  // control area backdrop
-  ctx.fillStyle='rgba(0,0,0,0.72)'; ctx.fillRect(0,GROUND,W,H-GROUND);
-  ctx.fillStyle=lv.floorTop; ctx.fillRect(0,GROUND,W,3);
-  // top bar
-  const fsz=Math.max(10,Math.min(12,W/36));
-  rr(0,0,W,28,0,'rgba(0,0,0,0.68)');
-  ctx.font=`bold ${fsz}px Courier New`;
-  ctx.fillStyle=lv.floorTop; ctx.textAlign='left';  ctx.fillText(`LVL${st.level+1} · ${lv.year} — ${lv.name}`,8,19);
-  ctx.fillStyle='#f5a623';    ctx.textAlign='right'; ctx.fillText(`${st.score}đ`,W-8,19);
+  if(!drew){
+    const g=ctx.createLinearGradient(0,0,0,H);
+    g.addColorStop(0,'#0d1b35');g.addColorStop(0.6,'#16213e');g.addColorStop(1,'#0a1020');
+    ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+  }
+  // control area
+  ctx.fillStyle='rgba(0,0,0,0.82)';ctx.fillRect(0,GROUND,W,H-GROUND);
+  ctx.fillStyle=lv.color;ctx.fillRect(0,GROUND,W,3);
+}
+
+// ─── TOP BAR ─────────────────────────────────────────────────────
+function drawTopBar(st){
+  const lv=LEVELS[st.level];
+  rr(0,0,W,38,0,'rgba(0,0,0,0.78)');
+  // Level info
+  ctx.fillStyle=lv.color;ctx.font='bold 13px Courier New';ctx.textAlign='left';
+  ctx.fillText(`LVL${st.level+1} · ${lv.year} — ${lv.name}`,10,24);
+  // Score
+  ctx.fillStyle='#f5a623';ctx.font='bold 14px Courier New';ctx.textAlign='right';
+  ctx.fillText(`${st.score}đ`,W-10,24);
+  // Lives (center)
+  ctx.font='18px serif';ctx.textAlign='center';
+  ctx.fillText('❤️'.repeat(st.lives),W/2,25);
 }
 
 // ─── DRAW PLAYER ─────────────────────────────────────────────────
 function drawPlayer(p){
-  const img=IMGS[`player${selectedChar}`];
+  const img=IMGS[`player${sc}`];
   ctx.save();
-  if(imgReady(img)){
-    if(p.facing<0){ ctx.translate(p.x+PLAYER_W,p.y); ctx.scale(-1,1); ctx.drawImage(img,0,0,PLAYER_W,PLAYER_H); }
+  if(imgOk(img)){
+    if(p.face<0){ctx.translate(p.x+PLAYER_W,p.y);ctx.scale(-1,1);ctx.drawImage(img,0,0,PLAYER_W,PLAYER_H);}
     else ctx.drawImage(img,p.x,p.y,PLAYER_W,PLAYER_H);
-  } else {
-    rr(p.x+6,p.y,PLAYER_W-12,PLAYER_H-10,6,'#f4a261');
-    rr(p.x+2,p.y+PLAYER_H-14,PLAYER_W-4,14,4,'#1a1a1a');
-  }
+  }else{rr(p.x+5,p.y,PLAYER_W-10,PLAYER_H-10,6,'#f4a261');rr(p.x,p.y+PLAYER_H-12,PLAYER_W,12,4,'#1a1a1a');}
   ctx.restore();
 }
 
 // ─── DRAW ITEM ───────────────────────────────────────────────────
 function drawItem(item){
-  const x=item.x,y=item.y,s=ITEM_SIZE;
-  const img=IMGS[ITEM_IMG_KEY[item.type]];
   ctx.save();
-  ctx.shadowColor=item.isEnemy?'#ff6b6b':'#4ecdc4'; ctx.shadowBlur=12;
-  if(imgReady(img)){
-    const sc=Math.min(s/img.naturalWidth,s/img.naturalHeight);
-    const dw=img.naturalWidth*sc,dh=img.naturalHeight*sc;
-    ctx.drawImage(img,x+(s-dw)/2,y+(s-dh)/2,dw,dh);
-  } else {
-    rr(x,y,s,s,8,item.isEnemy?'#ff4444':'#4ecdc4');
-    ctx.shadowBlur=0; ctx.fillStyle='#000';
-    ctx.font='bold 10px Courier New'; ctx.textAlign='center';
-    ctx.fillText(item.type.slice(0,3).toUpperCase(),x+s/2,y+s/2+4);
+  ctx.shadowColor=item.enemy?'#ff6b6b':'#4ecdc4';ctx.shadowBlur=14;
+  if(!drawImg(IMGS[IKEY[item.type]],item.x,item.y,ITEM_SIZE)){
+    rr(item.x,item.y,ITEM_SIZE,ITEM_SIZE,8,item.enemy?'#ff4444':'#4ecdc4');
+    ctx.shadowBlur=0;ctx.fillStyle='#fff';ctx.font='bold 10px Courier New';
+    ctx.textAlign='center';ctx.fillText(item.type.slice(0,3).toUpperCase(),item.x+ITEM_SIZE/2,item.y+ITEM_SIZE/2+4);
   }
   ctx.restore();
 }
 
-// ─── FALLING SHADOWS ─────────────────────────────────────────────
-function drawFallingShadows(st){
-  st.items.forEach(item=>{
-    if(item.collected)return;
-    const alpha=Math.max(0,Math.min(0.75,item.y/GROUND));
-    const cx=item.x+ITEM_SIZE/2, rgb=item.isEnemy?'255,107,107':'78,205,196';
-    ctx.save();
-    ctx.fillStyle=`rgba(${rgb},${alpha*0.28})`;
-    ctx.beginPath(); ctx.ellipse(cx,GROUND+6,(ITEM_SIZE/2)*(0.3+alpha*0.7),4*(0.3+alpha*0.7),0,0,Math.PI*2); ctx.fill();
-    if(item.y<GROUND-ITEM_SIZE){
-      ctx.strokeStyle=`rgba(${rgb},${alpha*0.16})`; ctx.setLineDash([4,7]); ctx.lineWidth=1;
-      ctx.beginPath(); ctx.moveTo(cx,item.y+ITEM_SIZE); ctx.lineTo(cx,GROUND+3); ctx.stroke(); ctx.setLineDash([]);
-    }
-    ctx.restore();
+// ─── PROGRESS BAR ────────────────────────────────────────────────
+function drawProgress(st){
+  const parts=LEVELS[st.level].parts,n=parts.length;
+  const cols=Math.min(4,n),rows=Math.ceil(n/cols);
+  const pad=10,gap=4,boxH=26;
+  const boxW=Math.floor((W-pad*2-gap*(cols-1))/cols);
+  const by=40;
+  rr(pad-4,by-3,W-pad*2+8,rows*(boxH+gap)-gap+10,6,'rgba(0,0,0,0.6)');
+  parts.forEach((p,i)=>{
+    const col=i%cols,row=Math.floor(i/cols);
+    const px=pad+col*(boxW+gap),py=by+row*(boxH+gap);
+    const done=st.collected.includes(p);
+    rr(px,py,boxW,boxH,4,done?'rgba(78,205,196,0.3)':'rgba(255,255,255,0.05)',done?'#4ecdc4':'#2a4060');
+    ctx.fillStyle=done?'#4ecdc4':'#4a6080';
+    ctx.font=`${done?'bold ':''}11px Courier New`;ctx.textAlign='center';
+    ctx.fillText(PLABEL[p],px+boxW/2,py+boxH-7);
   });
 }
 
-// ─── PROGRESS BAR ────────────────────────────────────────────────
-function drawProgress(st){
-  const parts=LEVELS[st.level].parts, n=parts.length;
-  const cols=Math.min(4,n), rows=Math.ceil(n/cols);
-  const pad=10, gap=3;
-  const boxW=Math.floor((W-pad*2-gap*(cols-1))/cols);
-  const boxH=22, bx=pad, by=30;
-  rr(bx-4,by-2,W-pad*2+8,rows*(boxH+gap)-gap+8,6,'rgba(0,0,0,0.52)');
-  parts.forEach((p,i)=>{
-    const col=i%cols, row=Math.floor(i/cols);
-    const px=bx+col*(boxW+gap), py=by+row*(boxH+gap);
-    const done=st.collected.includes(p);
-    rr(px,py,boxW,boxH,3,done?'rgba(78,205,196,0.28)':'rgba(255,255,255,0.04)',done?'#4ecdc4':'#333');
-    ctx.fillStyle=done?'#4ecdc4':'#555';
-    ctx.font=`${done?'bold ':''}8px Courier New`; ctx.textAlign='center';
-    ctx.fillText(PART_LABEL[p],px+boxW/2,py+boxH-6);
+// ─── QUIZ PROGRESS ───────────────────────────────────────────────
+function drawQuizBar(st){
+  if(st.quiz.on||st.quiz.qi>=2)return;
+  const lv=LEVELS[st.level];
+  const nxt=lv.quiz[st.quiz.mi];
+  const pct=Math.min(1,st.collected.length/nxt);
+  const bw=Math.min(200,W*0.5),bx=W/2-bw/2,by=GROUND-28;
+  rr(bx,by,bw,12,5,'rgba(0,0,0,0.5)');
+  if(pct>0){
+    ctx.save();ctx.beginPath();
+    ctx.roundRect(bx,by,bw*pct,12,5);ctx.fillStyle='rgba(245,166,35,0.7)';ctx.fill();ctx.restore();
+  }
+  ctx.fillStyle='#f5a623';ctx.font='bold 11px Courier New';ctx.textAlign='center';
+  ctx.fillText(`❓ Quiz ${st.quiz.qi+1}/2 · ${st.collected.length}/${nxt} lk`,W/2,by-5);
+}
+
+// ─── SHADOW TRAILS ───────────────────────────────────────────────
+function drawShadows(st){
+  st.items.forEach(item=>{
+    if(item.collected)return;
+    const a=Math.max(0,Math.min(0.7,item.y/GROUND));
+    const cx=item.x+ITEM_SIZE/2,rgb=item.enemy?'255,107,107':'78,205,196';
+    ctx.save();
+    ctx.fillStyle=`rgba(${rgb},${a*0.25})`;
+    ctx.beginPath();ctx.ellipse(cx,GROUND+5,(ITEM_SIZE/2)*(0.4+a*0.6),4,0,0,Math.PI*2);ctx.fill();
+    ctx.restore();
   });
 }
 
 // ─── VIRTUAL BUTTONS ─────────────────────────────────────────────
-function drawVirtualButtons(st){
-  if(!st.running||st.levelIntro||st.levelClear||st.quiz.active)return;
-  const defs=[
-    {btn:VBTN.left, label:'◀',active:virtualKeys.left, rgb:'200,220,255'},
-    {btn:VBTN.right,label:'▶',active:virtualKeys.right,rgb:'200,220,255'},
-    {btn:VBTN.jump, label:'▲',active:false,             rgb:'245,166,35'},
+function drawVBtns(st){
+  if(!st.running||st.intro||st.clear||st.quiz.on)return;
+  const btns=[
+    {b:VBTN.left, lbl:'◀',active:vk.left, rgb:'180,210,255'},
+    {b:VBTN.right,lbl:'▶',active:vk.right,rgb:'180,210,255'},
+    {b:VBTN.jump, lbl:'▲',active:false,   rgb:'245,166,35'},
   ];
-  defs.forEach(({btn,label,active,rgb})=>{
+  btns.forEach(({b,lbl,active,rgb})=>{
     ctx.save();
-    rr(btn.x,btn.y,btn.w,btn.h,18,
-      `rgba(${rgb},${active?0.32:0.1})`,
-      `rgba(${rgb},${active?0.85:0.38})`,2);
-    ctx.fillStyle=`rgba(${rgb},${active?1:0.8})`;
-    ctx.font='bold 32px Arial'; ctx.textAlign='center';
-    ctx.fillText(label,btn.x+btn.w/2,btn.y+btn.h/2+11);
+    // Glass button
+    const g=ctx.createLinearGradient(b.x,b.y,b.x,b.y+b.h);
+    g.addColorStop(0,`rgba(${rgb},${active?0.28:0.12})`);
+    g.addColorStop(1,`rgba(${rgb},${active?0.08:0.04})`);
+    rr(b.x,b.y,b.w,b.h,20,g,`rgba(${rgb},${active?0.9:0.3})`,active?2.5:1.5);
+    ctx.fillStyle=`rgba(${rgb},${active?1:0.7})`;
+    ctx.font='bold 34px Arial';ctx.textAlign='center';
+    ctx.fillText(lbl,b.x+b.w/2,b.y+b.h/2+12);
     ctx.restore();
   });
-  // lives — row between ground line and buttons
-  ctx.font='22px serif'; ctx.textAlign='center';
-  ctx.fillText('❤️'.repeat(st.lives), W/2, GROUND+34);
 }
 
 // ─── QUIZ OVERLAY ────────────────────────────────────────────────
 function drawQuiz(st){
-  const quiz=st.quiz, q=QUESTIONS[st.level*2+quiz.levelQIndex];
-  ctx.fillStyle='rgba(8,12,30,0.93)'; ctx.fillRect(0,0,W,H);
+  const q=state.quiz,qd=QS[st.level*2+q.qi];
+  ctx.fillStyle='rgba(5,10,25,0.96)';ctx.fillRect(0,0,W,H);
 
-  const mx=14, OW=W-mx*2, ox=mx;
-  const headerH=36;
-  rr(ox,14,OW,headerH,10,'#f5a623');
-  ctx.fillStyle='#1a1a2e'; ctx.font=`bold ${Math.max(11,Math.min(13,W/32))}px Courier New`; ctx.textAlign='center';
-  ctx.fillText(`❓ QUIZ LVL${st.level+1} · CÂU ${quiz.levelQIndex+1}/2`,W/2,14+headerH/2+5);
+  // Header
+  const hx=12,hw=W-24,hy=14,hh=42;
+  rr(hx,hy,hw,hh,10,'#f5a623');
+  ctx.fillStyle='#0d1117';ctx.font='bold 15px Courier New';ctx.textAlign='center';
+  ctx.fillText(`❓  QUIZ LVL${st.level+1}  ·  CÂU ${q.qi+1}/2`,W/2,hy+hh/2+6);
 
-  const qy=62, fsz=Math.max(11,Math.min(14,W/30));
-  ctx.fillStyle='#fff'; ctx.font=`bold ${fsz}px Courier New`; ctx.textAlign='center';
-  const lines=wrapText(q.q,OW-24);
+  // Question
+  ctx.font='bold 16px Courier New';ctx.fillStyle='#fff';ctx.textAlign='center';
+  const lines=wrap(qd.q,W-30),qy=70;
   lines.forEach((l,i)=>ctx.fillText(l,W/2,qy+i*22));
-  ctx.fillStyle='#555'; ctx.font='9px Courier New';
-  ctx.fillText('Tap hoặc nhấn A/B/C/D',W/2,qy+lines.length*22+10);
+  ctx.fillStyle='#444';ctx.font='11px Courier New';
+  ctx.fillText('Tap câu trả lời hoặc nhấn A/B/C/D',W/2,qy+lines.length*22+12);
 
-  // 4 answer rows — height fills available space above control area
-  const answerTop = qy+lines.length*22+22;
-  const answerBot = GROUND - 8;
-  const bH = Math.max(50, Math.floor((answerBot - answerTop - 3*7) / 4));
-  const bW=OW-10, bx=ox+5;
-  quiz.buttons=[];
+  // Buttons
+  const top=qy+lines.length*22+26,bot=GROUND-10;
+  const bH=Math.max(56,Math.floor((bot-top-21)/4));
+  const bW=W-24,bx=12;
+  q.btns=[];
   [0,1,2,3].forEach(i=>{
-    const by=answerTop+i*(bH+7);
-    quiz.buttons.push({x:bx,y:by,w:bW,h:bH});
-    let bg='#0f2a4a',border='#2d5a8a',tc='#ddd';
-    if(quiz.chosen!==-1){
-      if(i===q.answer)        {bg='#0d3d1a';border='#4ecdc4';tc='#4ecdc4';}
-      else if(i===quiz.chosen){bg='#3d0d0d';border='#ff6b6b';tc='#ff6b6b';}
-      else                    {bg='#0a1628';border='#1a3050';tc='#3a5060';}
-    }
-    rr(bx,by,bW,bH,10,bg,border);
-    ctx.fillStyle=tc; ctx.font=`${Math.max(11,Math.min(13,W/32))}px Courier New`;
-    ctx.textAlign='left'; ctx.fillText(q.opts[i],bx+14,by+bH/2+5);
-    if(quiz.chosen!==-1&&i===q.answer){ctx.fillStyle='#4ecdc4';ctx.font='bold 16px Courier New';ctx.textAlign='right';ctx.fillText('✓',bx+bW-12,by+bH/2+6);}
-    if(quiz.chosen===i&&i!==q.answer) {ctx.fillStyle='#ff6b6b';ctx.font='bold 16px Courier New';ctx.textAlign='right';ctx.fillText('✗',bx+bW-12,by+bH/2+6);}
+    const by=top+i*(bH+7);
+    q.btns.push({x:bx,y:by,w:bW,h:bH});
+    let bg,border,tc;
+    if(q.chosen===-1){bg='rgba(15,40,75,0.9)';border='rgba(80,130,200,0.5)';tc='#ccc';}
+    else if(i===qd.ans){bg='rgba(13,61,26,0.9)';border='#4ecdc4';tc='#4ecdc4';}
+    else if(i===q.chosen){bg='rgba(61,13,13,0.9)';border='#ff6b6b';tc='#ff6b6b';}
+    else{bg='rgba(8,18,35,0.9)';border='rgba(30,50,80,0.5)';tc='#333';}
+    rr(bx,by,bW,bH,12,bg,border,2);
+    ctx.fillStyle=tc;ctx.font='bold 15px Courier New';ctx.textAlign='left';
+    ctx.fillText(qd.opts[i],bx+16,by+bH/2+6);
+    if(q.chosen!==-1&&i===qd.ans){ctx.fillStyle='#4ecdc4';ctx.font='bold 20px Courier New';ctx.textAlign='right';ctx.fillText('✓',bx+bW-14,by+bH/2+7);}
+    if(q.chosen===i&&i!==qd.ans){ctx.fillStyle='#ff6b6b';ctx.font='bold 20px Courier New';ctx.textAlign='right';ctx.fillText('✗',bx+bW-14,by+bH/2+7);}
   });
 
-  if(quiz.chosen!==-1){
-    const ok=quiz.chosen===q.answer;
-    const ry=answerTop+4*(bH+7);
+  if(q.chosen!==-1){
+    const ok=q.chosen===qd.ans,ry=top+4*(bH+7)+2;
     if(ry<H-10){
-      rr(ox+8,ry,OW-16,26,6,ok?'rgba(78,205,196,0.18)':'rgba(255,107,107,0.18)',ok?'#4ecdc4':'#ff6b6b');
-      ctx.fillStyle=ok?'#4ecdc4':'#ff6b6b'; ctx.font=`bold ${Math.max(11,Math.min(13,W/32))}px Courier New`;
-      ctx.textAlign='center'; ctx.fillText(ok?'✓  Chính xác! +300đ':'✗  Sai rồi! -1000đ',W/2,ry+17);
+      rr(12,ry,W-24,32,8,ok?'rgba(78,205,196,0.15)':'rgba(255,107,107,0.15)',ok?'#4ecdc4':'#ff6b6b',2);
+      ctx.fillStyle=ok?'#4ecdc4':'#ff6b6b';ctx.font='bold 14px Courier New';ctx.textAlign='center';
+      ctx.fillText(ok?'✓  Chính xác!  +300đ':'✗  Sai rồi!  -1000đ',W/2,ry+20);
     }
   }
 }
 
 // ─── LEVEL INTRO ─────────────────────────────────────────────────
-function drawLevelIntro(st){
+function drawIntro(st){
   const lv=LEVELS[st.level];
-  drawBackground(st);
-  ctx.fillStyle='rgba(4,8,22,0.88)'; ctx.fillRect(0,0,W,H);
+  drawBG(st);
+  ctx.fillStyle='rgba(3,6,18,0.9)';ctx.fillRect(0,0,W,H);
 
-  const mx=10, OW=W-mx*2, ox=mx;
-  const oh=Math.min(H-16,H*0.94), oy=(H-oh)/2;
+  // Build layout sizes
+  const prevP=st.level>0?LEVELS[st.level-1].parts:[];
+  const parts=lv.parts,cols=Math.min(4,parts.length),rows=Math.ceil(parts.length/cols);
+  const IS=Math.min(48,Math.floor((W-32)/cols)-10);
+  const cellW=Math.floor((W-20)/cols),cellH=IS+22;
+  const eIS=Math.min(44,Math.floor((W-24)/3)-12);
+  const eCellW=Math.floor((W-16)/3);
 
-  rr(ox,oy,OW,oh,12,'#0a1628','#f5a623',2);
-  rr(ox,oy,OW,36,12,'#f5a623'); rr(ox,oy+24,OW,12,0,'#f5a623');
-  ctx.fillStyle='#1a1a2e'; ctx.font=`bold ${Math.max(10,Math.min(12,W/38))}px Courier New`; ctx.textAlign='center';
-  ctx.fillText(`LEVEL ${st.level+1}  ·  ${lv.year}  —  ${lv.name}`,W/2,oy+22);
+  // Compute total content height
+  const C={hdr:42,prod:28,div1:14,lbl1:18,grid:rows*cellH,div2:14,lbl2:18,egrid:eIS+18,hint:16,btn:26,padV:20};
+  const oh=C.hdr+C.prod+C.div1+C.lbl1+C.grid+C.div2+C.lbl2+C.egrid+C.hint+C.btn+C.padV;
+  const fitH=Math.min(oh,H-20);
+  const oy=Math.max(6,(H-fitH)/2),ox=8,OW=W-16;
 
-  ctx.fillStyle='#f5a623'; ctx.font=`bold ${Math.max(11,Math.min(13,W/34))}px Courier New`;
-  ctx.fillText(`Chế tạo ${lv.productEmoji} ${lv.product}`,W/2,oy+50);
+  rr(ox,oy,OW,fitH,12,'#0a1220','#f5a623',2);
+  rr(ox,oy,OW,C.hdr,12,'#f5a623');rr(ox,oy+C.hdr-12,OW,12,0,'#f5a623');
+  ctx.fillStyle='#0d1117';ctx.font='bold 14px Courier New';ctx.textAlign='center';
+  ctx.fillText(`LEVEL ${st.level+1}  ·  ${lv.year}  —  ${lv.name}`,W/2,oy+C.hdr/2+6);
 
-  ctx.strokeStyle='#1e3a5f'; ctx.lineWidth=1;
-  ctx.beginPath(); ctx.moveTo(ox+10,oy+62); ctx.lineTo(ox+OW-10,oy+62); ctx.stroke();
+  let cy=oy+C.hdr+10;
+  ctx.fillStyle='#f5a623';ctx.font='bold 15px Courier New';ctx.textAlign='center';
+  ctx.fillText(`Chế tạo ${lv.emoji}  ${lv.product}`,W/2,cy+16);cy+=C.prod;
 
-  ctx.fillStyle='#4ecdc4'; ctx.font=`bold ${Math.max(9,Math.min(11,W/42))}px Courier New`; ctx.textAlign='center';
-  ctx.fillText('✅  THU THẬP',W/2,oy+76);
+  ctx.strokeStyle='#1e3a5f';ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(ox+12,cy+4);ctx.lineTo(ox+OW-12,cy+4);ctx.stroke();cy+=C.div1;
 
-  const parts=lv.parts, prevParts=st.level>0?LEVELS[st.level-1].parts:[];
-  const cols=Math.min(4,parts.length), rows=Math.ceil(parts.length/cols);
-  const IS=Math.min(42,Math.floor((OW-20)/cols)-10);
-  const cellW=Math.floor((OW-16)/cols), cellH=IS+18;
-  const gridX=ox+8, gridY=oy+82;
+  ctx.fillStyle='#4ecdc4';ctx.font='bold 13px Courier New';ctx.textAlign='center';
+  ctx.fillText('✅  THU THẬP',W/2,cy+13);cy+=C.lbl1;
+
+  // Items grid
+  const gridX=ox+8,gridY=cy;
   parts.forEach((p,i)=>{
-    const col=i%cols, row=Math.floor(i/cols);
-    const px=gridX+col*cellW+(cellW-IS)/2, py=gridY+row*cellH;
-    const isNew=st.level>0&&!prevParts.includes(p);
+    const col=i%cols,row=Math.floor(i/cols);
+    const px=gridX+col*cellW+(cellW-IS)/2,py=gridY+row*cellH;
+    const isNew=st.level>0&&!prevP.includes(p);
     if(isNew){
-      rr(px-3,py-3,IS+6,IS+8,4,'rgba(78,205,196,0.15)','#4ecdc4',1.5);
-      ctx.fillStyle='#4ecdc4'; ctx.font='bold 7px Courier New'; ctx.textAlign='center';
+      rr(px-3,py-3,IS+6,IS+8,4,'rgba(78,205,196,0.12)','#4ecdc4',1.5);
+      ctx.fillStyle='#4ecdc4';ctx.font='bold 9px Courier New';ctx.textAlign='center';
       ctx.fillText('MỚI',px+IS/2,py-5);
     }
-    const img=IMGS[ITEM_IMG_KEY[p]];
-    if(imgReady(img)){ const sc=Math.min(IS/img.naturalWidth,IS/img.naturalHeight); const dw=img.naturalWidth*sc,dh=img.naturalHeight*sc; ctx.drawImage(img,px+(IS-dw)/2,py+(IS-dh)/2,dw,dh); }
-    else rr(px,py,IS,IS,4,'#4ecdc4');
-    ctx.fillStyle=isNew?'#4ecdc4':'#bbb'; ctx.font=`${isNew?'bold ':''}7px Courier New`; ctx.textAlign='center';
-    ctx.fillText(PART_LABEL[p],px+IS/2,py+IS+11);
+    if(!drawImg(IMGS[IKEY[p]],px,py,IS))rr(px,py,IS,IS,4,'#4ecdc4');
+    ctx.fillStyle=isNew?'#4ecdc4':'#888';ctx.font=`${isNew?'bold ':''}10px Courier New`;
+    ctx.textAlign='center';ctx.fillText(PLABEL[p],px+IS/2,py+IS+14);
   });
+  cy+=C.grid;
 
-  const avoidY=gridY+rows*cellH+4;
-  ctx.strokeStyle='#1e3a5f'; ctx.lineWidth=1;
-  ctx.beginPath(); ctx.moveTo(ox+10,avoidY); ctx.lineTo(ox+OW-10,avoidY); ctx.stroke();
-  ctx.fillStyle='#ff6b6b'; ctx.font=`bold ${Math.max(9,Math.min(11,W/42))}px Courier New`; ctx.textAlign='center';
-  ctx.fillText('🚫  TRÁNH',W/2,avoidY+14);
+  ctx.strokeStyle='#1e3a5f';ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(ox+12,cy+4);ctx.lineTo(ox+OW-12,cy+4);ctx.stroke();cy+=C.div2;
 
-  const enemies=[{type:'invoice',label:'Hóa đơn'},{type:'rival',label:'Đối thủ'},{type:'bug',label:'Lỗi KT'}];
-  const eIS=Math.min(38,Math.floor((OW-20)/3)-12);
-  const eCellW=Math.floor((OW-16)/3), eY=avoidY+20;
-  enemies.forEach((e,i)=>{
-    const ex=ox+8+i*eCellW+(eCellW-eIS)/2;
-    rr(ex-3,eY-3,eIS+6,eIS+6,4,'rgba(255,107,107,0.1)','#ff6b6b55',1);
-    const img=IMGS[e.type];
-    if(imgReady(img)){ const sc=Math.min(eIS/img.naturalWidth,eIS/img.naturalHeight); const dw=img.naturalWidth*sc,dh=img.naturalHeight*sc; ctx.drawImage(img,ex+(eIS-dw)/2,eY+(eIS-dh)/2,dw,dh); }
-    else rr(ex,eY,eIS,eIS,4,'#ff6b6b');
-    ctx.fillStyle='#ff9999'; ctx.font='7px Courier New'; ctx.textAlign='center';
-    ctx.fillText(e.label,ex+eIS/2,eY+eIS+11);
+  ctx.fillStyle='#ff6b6b';ctx.font='bold 13px Courier New';ctx.textAlign='center';
+  ctx.fillText('🚫  TRÁNH',W/2,cy+13);cy+=C.lbl2;
+
+  // Enemies
+  [{type:'invoice',label:'Hóa đơn'},{type:'rival',label:'Đối thủ'},{type:'bug',label:'Lỗi KT'}].forEach((e,i)=>{
+    const ex=ox+8+i*eCellW+(eCellW-eIS)/2,ey=cy;
+    rr(ex-3,ey-3,eIS+6,eIS+8,4,'rgba(255,107,107,0.08)','#ff6b6b44',1);
+    if(!drawImg(IMGS[e.type],ex,ey,eIS))rr(ex,ey,eIS,eIS,4,'#ff6b6b');
+    ctx.fillStyle='#ff9999';ctx.font='10px Courier New';ctx.textAlign='center';
+    ctx.fillText(e.label,ex+eIS/2,ey+eIS+14);
   });
+  cy+=C.egrid;
 
-  const footerY=oy+oh-30;
-  ctx.strokeStyle='#1e3a5f'; ctx.lineWidth=1;
-  ctx.beginPath(); ctx.moveTo(ox+10,footerY-6); ctx.lineTo(ox+OW-10,footerY-6); ctx.stroke();
-  ctx.fillStyle='#555'; ctx.font='8px Courier New'; ctx.textAlign='center';
-  ctx.fillText('+300đ mỗi lk · Quiz đúng +300đ · Sai -1000đ',W/2,footerY+2);
-  rr(ox+10,footerY+8,OW-20,18,5,'rgba(245,166,35,0.12)','#f5a623',1.5);
-  ctx.fillStyle='#f5a623'; ctx.font=`bold ${Math.max(9,Math.min(11,W/42))}px Courier New`; ctx.textAlign='center';
-  ctx.fillText('▶  Tap hoặc Space để bắt đầu',W/2,footerY+20);
+  ctx.fillStyle='#444';ctx.font='10px Courier New';ctx.textAlign='center';
+  ctx.fillText('+300đ mỗi lk  ·  Quiz đúng +300đ  ·  Sai -1000đ',W/2,cy+12);cy+=C.hint;
+
+  rr(ox+10,cy+4,OW-20,C.btn,6,'rgba(245,166,35,0.12)','#f5a623',1.5);
+  ctx.fillStyle='#f5a623';ctx.font='bold 13px Courier New';ctx.textAlign='center';
+  ctx.fillText('▶  Tap hoặc Space để bắt đầu',W/2,cy+4+C.btn/2+5);
 }
 
 // ─── LEVEL CLEAR ─────────────────────────────────────────────────
-function drawLevelClear(st){
+function drawClear(st){
   const lv=LEVELS[st.level];
-  ctx.fillStyle='rgba(4,8,20,0.9)'; ctx.fillRect(0,0,W,H);
-  const OW=Math.min(W-24,400), OH=230, ox=(W-OW)/2, oy=(H-OH)/2;
-  rr(ox,oy,OW,OH,14,'#0a1628','#f5a623',3);
-  rr(ox,oy,OW,38,14,'#f5a623'); rr(ox,oy+25,OW,13,0,'#f5a623');
-  ctx.fillStyle='#1a1a2e'; ctx.font=`bold ${Math.max(12,Math.min(14,W/30))}px Courier New`; ctx.textAlign='center';
-  ctx.fillText(`✓  LEVEL ${st.level+1} HOÀN THÀNH!`,W/2,oy+24);
-  ctx.font='38px serif'; ctx.fillText(lv.productEmoji,W/2,oy+76);
-  ctx.fillStyle='#f5a623'; ctx.font=`bold ${Math.max(12,Math.min(14,W/30))}px Courier New`;
-  ctx.fillText(`${lv.product} đã chế tạo!`,W/2,oy+96);
-  ctx.fillStyle='#4ecdc4'; ctx.font=`${Math.max(11,Math.min(12,W/36))}px Courier New`;
-  ctx.fillText(`Điểm: ${st.score}`,W/2,oy+116);
-  if(st.level<2){ const nx=LEVELS[st.level+1]; ctx.fillStyle='#aaa'; ctx.font='10px Courier New'; ctx.fillText(`Tiếp: Level ${st.level+2} — ${nx.parts.length} linh kiện`,W/2,oy+136); }
-  const prog=1-st.levelClearTimer/200;
-  rr(ox+16,oy+OH-22,OW-32,10,4,'rgba(255,255,255,0.08)');
-  rr(ox+16,oy+OH-22,(OW-32)*prog,10,4,'#f5a623');
-  ctx.fillStyle='#777'; ctx.font='9px Courier New';
-  ctx.fillText('Tap hoặc Space để tiếp tục',W/2,oy+OH-3);
+  ctx.fillStyle='rgba(3,6,15,0.92)';ctx.fillRect(0,0,W,H);
+  const OW=Math.min(W-28,400),OH=240,ox=(W-OW)/2,oy=(H-OH)/2;
+  rr(ox,oy,OW,OH,14,'#0a1220','#f5a623',3);
+  rr(ox,oy,OW,40,14,'#f5a623');rr(ox,oy+27,OW,13,0,'#f5a623');
+  ctx.fillStyle='#0d1117';ctx.font='bold 15px Courier New';ctx.textAlign='center';
+  ctx.fillText(`✓  LEVEL ${st.level+1} HOÀN THÀNH!`,W/2,oy+26);
+  ctx.font='42px serif';ctx.fillText(lv.emoji,W/2,oy+82);
+  ctx.fillStyle='#f5a623';ctx.font='bold 16px Courier New';
+  ctx.fillText(`${lv.product} đã chế tạo!`,W/2,oy+104);
+  ctx.fillStyle='#4ecdc4';ctx.font='13px Courier New';
+  ctx.fillText(`Điểm: ${st.score}`,W/2,oy+124);
+  if(st.level<2){ctx.fillStyle='#666';ctx.font='11px Courier New';ctx.fillText(`Tiếp → Level ${st.level+2}: ${LEVELS[st.level+1].parts.length} linh kiện`,W/2,oy+144);}
+  const prog=1-st.clearT/200;
+  rr(ox+16,oy+OH-24,OW-32,10,4,'rgba(255,255,255,0.07)');
+  rr(ox+16,oy+OH-24,(OW-32)*prog,10,4,'#f5a623');
+  ctx.fillStyle='#555';ctx.font='10px Courier New';
+  ctx.fillText('Tap hoặc Space để tiếp tục',W/2,oy+OH-5);
 }
 
-// ─── SPAWN / COLLISION ───────────────────────────────────────────
-function spawnItem(st){
+// ─── SPAWN / PHYSICS ─────────────────────────────────────────────
+function spawn(st){
   const lv=LEVELS[st.level];
   const need=lv.parts.filter(p=>!st.collected.includes(p));
   if(!need.length)return;
-  const isEnemy=Math.random()<lv.enemyRatio;
-  const type=isEnemy?ENEMY_LIST[Math.floor(Math.random()*ENEMY_LIST.length)]:need[Math.floor(Math.random()*need.length)];
-  st.items.push({ type, x:36+Math.random()*(W-72-ITEM_SIZE), y:-ITEM_SIZE-Math.random()*160, vx:0, vy:1.0+Math.random()*0.8, collected:false, isEnemy:ENEMY_LIST.includes(type) });
+  const enemy=Math.random()<lv.eRatio;
+  const type=enemy?ENEMIES[Math.floor(Math.random()*3)]:need[Math.floor(Math.random()*need.length)];
+  st.items.push({type,x:36+Math.random()*(W-72-ITEM_SIZE),y:-ITEM_SIZE-Math.random()*160,vy:1.0+Math.random()*0.8,collected:false,enemy:ENEMIES.includes(type)});
 }
-function rectsOverlap(ax,ay,aw,ah,bx,by,bw,bh){ return ax<bx+bw&&ax+aw>bx&&ay<by+bh&&ay+ah>by; }
+function overlap(ax,ay,aw,ah,bx,by,bw,bh){return ax<bx+bw&&ax+aw>bx&&ay<by+bh&&ay+ah>by;}
 
 // ─── UPDATE ──────────────────────────────────────────────────────
 function update(st){
-  if(!st.running||st.levelIntro)return;
-  const quiz=st.quiz;
-  if(st.levelClear){ st.levelClearTimer--; if(st.levelClearTimer<=0){ st.level>=2?winGame(st):advanceLevel(st); } return; }
-  if(quiz.active&&quiz.chosen!==-1){ quiz.resultTimer--; if(quiz.resultTimer<=0){ quiz.active=false; quiz.chosen=-1; quiz.levelQIndex++; } return; }
-  if(!quiz.active&&quiz.levelQIndex<2){
-    if(st.collected.length>=LEVELS[st.level].quizAtParts[quiz.nextMilestoneIdx]){
-      quiz.active=true; quiz.chosen=-1; quiz.nextMilestoneIdx++; return;
-    }
-  }
-  if(quiz.active)return;
+  if(!st.running||st.intro)return;
+  const q=st.quiz;
+  if(st.clear){st.clearT--;if(st.clearT<=0){st.level>=2?win(st):nextLevel(st);}return;}
+  if(q.on&&q.chosen!==-1){q.rt--;if(q.rt<=0){q.on=false;q.chosen=-1;q.qi++;}return;}
+  if(!q.on&&q.qi<2){if(st.collected.length>=LEVELS[st.level].quiz[q.mi]){q.on=true;q.chosen=-1;q.mi++;return;}}
+  if(q.on)return;
 
   const p=st.player;
-  if(keys['ArrowLeft']  ||virtualKeys.left)  {p.vx=-4;p.facing=-1;}
-  else if(keys['ArrowRight']||virtualKeys.right) {p.vx= 4;p.facing= 1;}
+  if(keys['ArrowLeft']||vk.left){p.vx=-4;p.face=-1;}
+  else if(keys['ArrowRight']||vk.right){p.vx=4;p.face=1;}
   else p.vx=0;
-  p.vy+=GRAVITY; p.x+=p.vx; p.y+=p.vy;
-  if(p.y>=GROUND-PLAYER_H){p.y=GROUND-PLAYER_H;p.vy=0;p.onGround=true;}else p.onGround=false;
-  if(p.x<0)p.x=0; if(p.x+PLAYER_W>W)p.x=W-PLAYER_W;
-  if(p.vx!==0&&p.onGround){p.frameTimer++;if(p.frameTimer>4){p.frame++;p.frameTimer=0;}}
+  p.vy+=GRAVITY;p.x+=p.vx;p.y+=p.vy;
+  if(p.y>=GROUND-PLAYER_H){p.y=GROUND-PLAYER_H;p.vy=0;p.ground=true;}else p.ground=false;
+  if(p.x<0)p.x=0;if(p.x+PLAYER_W>W)p.x=W-PLAYER_W;
 
-  st.levelFrames++;
-  st.speed=LEVELS[st.level].baseSpeed+st.levelFrames*0.0006;
-  st.spawnTimer++;
-  if(st.spawnTimer>=st.spawnInterval){ spawnItem(st); st.spawnTimer=0; st.spawnInterval=Math.max(45,LEVELS[st.level].spawnInterval-st.levelFrames*0.04); }
+  st.frames++;
+  st.speed=LEVELS[st.level].speed+st.frames*0.0006;
+  st.spawnT++;
+  if(st.spawnT>=st.spawnI){spawn(st);st.spawnT=0;st.spawnI=Math.max(45,LEVELS[st.level].spawnInt-st.frames*0.04);}
 
-  st.items.forEach(item=>{ item.vy=Math.min(item.vy+0.06,3.5); item.y+=item.vy; });
-  st.items=st.items.filter(item=>!item.collected&&item.y<H+ITEM_SIZE);
+  st.items.forEach(it=>{it.vy=Math.min(it.vy+0.06,3.5);it.y+=it.vy;});
+  st.items=st.items.filter(it=>!it.collected&&it.y<H+ITEM_SIZE);
 
-  st.items.forEach(item=>{
-    if(item.collected)return;
-    if(rectsOverlap(p.x+6,p.y+6,PLAYER_W-12,PLAYER_H-10,item.x,item.y,ITEM_SIZE,ITEM_SIZE)){
-      item.collected=true;
-      if(item.isEnemy){ st.lives--; st.flash=20; st.flashColor='red'; if(st.lives<=0){endGame(st,item.type);return;} }
-      else{ if(!st.collected.includes(item.type)){st.collected.push(item.type);st.score+=300;st.levelScore+=300;} if(st.collected.length===LEVELS[st.level].parts.length){st.levelClear=true;st.levelClearTimer=200;} }
+  st.items.forEach(it=>{
+    if(it.collected)return;
+    if(overlap(p.x+6,p.y+6,PLAYER_W-12,PLAYER_H-10,it.x,it.y,ITEM_SIZE,ITEM_SIZE)){
+      it.collected=true;
+      if(it.enemy){st.lives--;st.flash=20;st.flashC='red';if(st.lives<=0){gameOver(st,it.type);return;}}
+      else{if(!st.collected.includes(it.type)){st.collected.push(it.type);st.score+=300;}
+           if(st.collected.length===LEVELS[st.level].parts.length){st.clear=true;st.clearT=200;}}
     }
   });
   if(st.flash>0)st.flash--;
 }
 
-// ─── ADVANCE LEVEL ───────────────────────────────────────────────
-function advanceLevel(st){
-  st.level++;
-  const lv=LEVELS[st.level];
-  st.levelScore=0;st.levelFrames=0;st.collected=[];st.items=[];st.levelIntro=true;
-  st.spawnTimer=0;st.spawnInterval=lv.spawnInterval;st.speed=lv.baseSpeed;
-  st.levelClear=false;st.levelClearTimer=0;
-  st.quiz={active:false,levelQIndex:0,chosen:-1,resultTimer:0,nextMilestoneIdx:0,buttons:[]};
-  st.player.x=W/2-PLAYER_W/2; st.player.y=GROUND-PLAYER_H;
+function nextLevel(st){
+  st.level++;const lv=LEVELS[st.level];
+  st.frames=0;st.collected=[];st.items=[];st.intro=true;
+  st.spawnT=0;st.spawnI=lv.spawnInt;st.speed=lv.speed;st.clear=false;st.clearT=0;
+  st.quiz={on:false,qi:0,chosen:-1,rt:0,mi:0,btns:[]};
+  st.player.x=W/2-PLAYER_W/2;st.player.y=GROUND-PLAYER_H;
 }
 
 // ─── RENDER ──────────────────────────────────────────────────────
 function render(st){
   ctx.clearRect(0,0,W,H);
-  if(st.levelIntro){ drawLevelIntro(st); return; }
-  drawBackground(st);
-  drawFallingShadows(st);
-  st.items.forEach(item=>drawItem(item));
+  if(st.intro){drawIntro(st);return;}
+  drawBG(st);
+  drawShadows(st);
+  st.items.forEach(it=>drawItem(it));
   drawPlayer(st.player);
+  drawTopBar(st);
   drawProgress(st);
+  drawQuizBar(st);
 
   if(st.flash>0){
-    ctx.fillStyle=st.flashColor==='green'?`rgba(50,220,120,${st.flash/30*0.35})`:`rgba(255,50,50,${st.flash/30*0.38})`;
+    ctx.fillStyle=st.flashC==='green'?`rgba(50,220,120,${st.flash/30*0.35})`:`rgba(255,50,50,${st.flash/30*0.4})`;
     ctx.fillRect(0,0,W,H);
   }
 
-  if(!st.quiz.active&&st.quiz.levelQIndex<2){
-    const nxt=LEVELS[st.level].quizAtParts[st.quiz.nextMilestoneIdx];
-    const pct=Math.min(1,st.collected.length/nxt);
-    const bw=Math.min(160,W*0.38), bx=W/2-bw/2, by=GROUND-22;
-    rr(bx,by,bw,10,4,'rgba(0,0,0,0.4)');
-    rr(bx,by,bw*pct,10,4,'rgba(245,166,35,0.55)');
-    ctx.fillStyle='#f5a623'; ctx.font='8px Courier New'; ctx.textAlign='center';
-    ctx.fillText(`❓${st.quiz.levelQIndex+1}/2 · ${st.collected.length}/${nxt}lk`,W/2,by-4);
-  }
-
-  const rank=getRank(st.score);
-  ctx.fillStyle=rank.color; ctx.font=`bold 9px Courier New`;
-  ctx.textAlign='center'; ctx.fillText(`${rank.emoji} ${rank.name}`,W/2,GROUND-30);
-
-  drawVirtualButtons(st);
-  if(st.quiz.active)  drawQuiz(st);
-  if(st.levelClear)   drawLevelClear(st);
+  drawVBtns(st);
+  if(st.quiz.on)drawQuiz(st);
+  if(st.clear)drawClear(st);
 }
 
-// ─── LOOP + GAME CONTROL ─────────────────────────────────────────
-function loop(){ update(state); render(state); animId=requestAnimationFrame(loop); }
+function loop(){update(state);render(state);animId=requestAnimationFrame(loop);}
 
 function startGame(){
-  if(!selectedChar)return;
+  if(!sc)return;
   ['title-screen','game-over-screen','win-screen'].forEach(id=>document.getElementById(id).classList.add('hidden'));
   if(animId)cancelAnimationFrame(animId);
-  resizeCanvas();
-  state=freshState(); state.running=true; loop();
+  resizeCanvas();state=fresh();state.running=true;loop();
 }
 
-function endGame(st,cause){
-  st.running=false; cancelAnimationFrame(animId);
-  const causes={invoice:'Chi phí đã nuốt chửng startup! 💸',rival:'Đối thủ đã nghiền nát bạn! 🤖',bug:'Lỗi kỹ thuật sụp đổ! ⚡'};
-  const rank=getRank(st.score), next=getNextRank(st.score);
-  document.getElementById('gameover-msg').textContent=causes[cause]||'Thử lại!';
-  document.getElementById('gameover-rank').innerHTML=`Điểm: <span style="color:#f5a623;font-weight:bold">${st.score}</span> &nbsp;·&nbsp; Hạng: <span style="color:${rank.color};font-weight:bold">${rank.emoji} ${rank.name}</span>`;
-  document.getElementById('gameover-next').textContent=next?`Cần thêm ${next.min-st.score}đ để đạt ${next.emoji} ${next.name}`:'Hạng cao nhất!';
+function gameOver(st,cause){
+  st.running=false;cancelAnimationFrame(animId);
+  const m={invoice:'Chi phí nuốt chửng startup! 💸',rival:'Đối thủ đã nghiền nát bạn! 🤖',bug:'Lỗi kỹ thuật sụp đổ! ⚡'};
+  const rank=getRank(st.score),next=getNext(st.score);
+  document.getElementById('gameover-msg').textContent=m[cause]||'Thử lại!';
+  document.getElementById('gameover-rank').innerHTML=`Điểm: <b>${st.score}</b> &nbsp;·&nbsp; <span style="color:${rank.color}">${rank.emoji} ${rank.name}</span>`;
+  document.getElementById('gameover-next').textContent=next?`Cần thêm ${next.min-st.score}đ → ${next.emoji} ${next.name}`:'';
   document.getElementById('game-over-screen').classList.remove('hidden');
 }
 
-function winGame(st){
-  st.running=false; cancelAnimationFrame(animId);
-  const rank=getRank(st.score), next=getNextRank(st.score);
-  const nameEl=document.getElementById('win-rank-name');
-  nameEl.textContent=rank.name.toUpperCase(); nameEl.style.color=rank.color; nameEl.style.textShadow=`0 0 18px ${rank.color}`;
+function win(st){
+  st.running=false;cancelAnimationFrame(animId);
+  const rank=getRank(st.score),next=getNext(st.score);
+  const msgs={0:'Chào mừng đến thế giới công nghệ!',900:'Code chạy rồi, giờ đến phần khó hơn!',2200:'Bạn hiểu cả phần cứng lẫn phần mềm!',3800:'Dẫn dắt team đến những điều vĩ đại!',5400:'Tầm nhìn chiến lược, quyết đoán tuyệt đối!',6800:'Think Different. Steve Jobs tự hào về bạn.'};
+  const el=document.getElementById('win-rank-name');
+  el.textContent=rank.name.toUpperCase();el.style.color=rank.color;el.style.textShadow=`0 0 20px ${rank.color}`;
   document.getElementById('win-rank-emoji').textContent=rank.emoji;
-  document.getElementById('win-rank-msg').textContent=rank.msg;
+  document.getElementById('win-rank-msg').textContent=msgs[rank.min]||'';
   document.getElementById('win-score').textContent=`Tổng điểm: ${st.score}`;
-  document.getElementById('win-next-rank').textContent=next?`Cần thêm ${next.min-st.score}đ để đạt ${next.emoji} ${next.name}`:'🎉 Hạng Huyền Thoại!';
+  document.getElementById('win-next-rank').textContent=next?`Cần thêm ${next.min-st.score}đ → ${next.emoji} ${next.name}`:'🎉 Hạng Huyền Thoại — Đỉnh cao!';
   document.getElementById('win-screen').classList.remove('hidden');
 }
 </script>
