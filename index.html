@@ -354,37 +354,83 @@ function drawShadows(st){
 // ─── QUIZ OVERLAY ────────────────────────────────────────────────
 function drawQuiz(st){
   const q=state.quiz,qd=QS[st.level*2+q.qi];
-  ctx.fillStyle='rgba(5,10,25,0.96)';ctx.fillRect(0,0,W,H);
-  const hx=12,hw=W-24,hy=14,hh=42;
-  rr(hx,hy,hw,hh,10,'#f5a623');
+  const LBLC=['#4cc9f0','#7bed9f','#ffd166','#ff6b6b'];
+  const LBLS=['A','B','C','D'];
+
+  // Dark overlay
+  const obg=ctx.createLinearGradient(0,0,0,H);
+  obg.addColorStop(0,'rgba(2,5,18,0.98)');obg.addColorStop(1,'rgba(4,10,32,0.98)');
+  ctx.fillStyle=obg;ctx.fillRect(0,0,W,H);
+
+  // Layout: calculate total height and center vertically
+  const bH=58, bGap=10, bW=W-28, bx=14;
+  ctx.font='bold 16px Courier New';
+  const lines=wrap(qd.q,W-36);
+  const hdrH=48, qBoxH=lines.length*24+24, hintH=18, resultH=42;
+  const btnsH=4*(bH+bGap)-bGap;
+  const totalH=hdrH+qBoxH+hintH+16+btnsH+(q.chosen!==-1?resultH+8:0);
+  const oy=Math.max(8,Math.round((H-totalH)/2));
+  let cy=oy;
+
+  // Header badge
+  rr(8,cy,W-16,hdrH,12,'#f5a623');
   ctx.fillStyle='#0d1117';ctx.font='bold 15px Courier New';ctx.textAlign='center';
-  ctx.fillText(`❓  QUIZ LVL${st.level+1}  ·  CÂU ${q.qi+1}/2`,W/2,hy+hh/2+6);
+  ctx.fillText(`❓  QUIZ ${st.level+1}  ·  CÂU ${q.qi+1}/2`,W/2,cy+hdrH/2+6);
+  cy+=hdrH+14;
 
-  ctx.font='bold 16px Courier New';ctx.fillStyle='#fff';ctx.textAlign='center';
-  const lines=wrap(qd.q,W-30),qy=70;
-  lines.forEach((l,i)=>ctx.fillText(l,W/2,qy+i*22));
-  ctx.fillStyle='#444';ctx.font='11px Courier New';
-  ctx.fillText('Tap câu trả lời hoặc nhấn A/B/C/D',W/2,qy+lines.length*22+12);
+  // Question box
+  rr(bx,cy,bW,qBoxH,10,'rgba(255,255,255,0.04)','rgba(100,140,220,0.25)',1.5);
+  ctx.fillStyle='#eef2ff';ctx.font='bold 16px Courier New';ctx.textAlign='center';
+  lines.forEach((l,i)=>ctx.fillText(l,W/2,cy+18+i*24));
+  cy+=qBoxH+4;
 
-  const top=qy+lines.length*22+26,bot=GROUND-10;
-  const bH=Math.max(56,Math.floor((bot-top-21)/4));
-  const bW=W-24,bx=12;
+  // Hint
+  ctx.fillStyle='#3a4a6a';ctx.font='11px Courier New';ctx.textAlign='center';
+  ctx.fillText('Tap câu trả lời · A/B/C/D',W/2,cy+12);
+  cy+=hintH+10;
+
+  // Answer buttons — fixed compact height
   q.btns=[];
   [0,1,2,3].forEach(i=>{
-    const by=top+i*(bH+7);q.btns.push({x:bx,y:by,w:bW,h:bH});
-    let bg,border,tc;
-    if(q.chosen===-1){bg='rgba(15,40,75,0.9)';border='rgba(80,130,200,0.5)';tc='#ccc';}
-    else if(i===qd.ans){bg='rgba(13,61,26,0.9)';border='#4ecdc4';tc='#4ecdc4';}
-    else if(i===q.chosen){bg='rgba(61,13,13,0.9)';border='#ff6b6b';tc='#ff6b6b';}
-    else{bg='rgba(8,18,35,0.9)';border='rgba(30,50,80,0.5)';tc='#333';}
-    rr(bx,by,bW,bH,12,bg,border,2);
-    ctx.fillStyle=tc;ctx.font='bold 15px Courier New';ctx.textAlign='left';ctx.fillText(qd.opts[i],bx+16,by+bH/2+6);
-    if(q.chosen!==-1&&i===qd.ans){ctx.fillStyle='#4ecdc4';ctx.font='bold 20px Courier New';ctx.textAlign='right';ctx.fillText('✓',bx+bW-14,by+bH/2+7);}
-    if(q.chosen===i&&i!==qd.ans){ctx.fillStyle='#ff6b6b';ctx.font='bold 20px Courier New';ctx.textAlign='right';ctx.fillText('✗',bx+bW-14,by+bH/2+7);}
+    const by=cy+i*(bH+bGap);
+    q.btns.push({x:bx,y:by,w:bW,h:bH});
+
+    let bgFill,border,tc;
+    if(q.chosen===-1){bgFill='rgba(10,22,52,0.92)';border=`${LBLC[i]}55`;tc='#c8d4f0';}
+    else if(i===qd.ans){bgFill='rgba(10,55,28,0.95)';border='#4ecdc4';tc='#4ecdc4';}
+    else if(i===q.chosen){bgFill='rgba(55,10,10,0.95)';border='#ff6b6b';tc='#ff6b6b';}
+    else{bgFill='rgba(4,10,28,0.9)';border='rgba(20,35,65,0.4)';tc='#2a3a5a';}
+
+    rr(bx,by,bW,bH,14,bgFill,border,2);
+
+    // Colored circle label
+    const cx2=bx+24,cy2=by+bH/2;
+    ctx.save();
+    ctx.fillStyle=q.chosen===-1?LBLC[i]+'33':bgFill;
+    ctx.beginPath();ctx.arc(cx2,cy2,14,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle=q.chosen===-1?LBLC[i]:(i===qd.ans?'#4ecdc4':i===q.chosen?'#ff6b6b':'rgba(30,50,90,0.5)');
+    ctx.lineWidth=1.5;ctx.stroke();
+    ctx.fillStyle=q.chosen===-1?LBLC[i]:tc;
+    ctx.font='bold 14px Courier New';ctx.textAlign='center';
+    ctx.fillText(LBLS[i],cx2,cy2+5);
+    ctx.restore();
+
+    // Answer text (strip "A. " prefix since circle handles it)
+    const txt=qd.opts[i].replace(/^[A-D]\.\s*/,'');
+    ctx.fillStyle=tc;ctx.font='bold 15px Courier New';ctx.textAlign='left';
+    ctx.fillText(txt,bx+48,by+bH/2+5);
+
+    // Check/X icon
+    if(q.chosen!==-1&&i===qd.ans){ctx.fillStyle='#4ecdc4';ctx.font='bold 22px Courier New';ctx.textAlign='right';ctx.fillText('✓',bx+bW-12,by+bH/2+8);}
+    if(q.chosen===i&&i!==qd.ans){ctx.fillStyle='#ff6b6b';ctx.font='bold 22px Courier New';ctx.textAlign='right';ctx.fillText('✗',bx+bW-12,by+bH/2+8);}
   });
+
+  // Result banner
   if(q.chosen!==-1){
-    const ok=q.chosen===qd.ans,ry=top+4*(bH+7)+2;
-    if(ry<H-10){rr(12,ry,W-24,32,8,ok?'rgba(78,205,196,0.15)':'rgba(255,107,107,0.15)',ok?'#4ecdc4':'#ff6b6b',2);ctx.fillStyle=ok?'#4ecdc4':'#ff6b6b';ctx.font='bold 14px Courier New';ctx.textAlign='center';ctx.fillText(ok?'✓  Chính xác!  +300đ':'✗  Sai rồi!  -1000đ',W/2,ry+20);}
+    const ok=q.chosen===qd.ans,ry=cy+4*(bH+bGap)+4;
+    rr(bx,ry,bW,resultH,10,ok?'rgba(78,205,196,0.13)':'rgba(255,107,107,0.13)',ok?'#4ecdc4':'#ff6b6b',2);
+    ctx.fillStyle=ok?'#4ecdc4':'#ff6b6b';ctx.font='bold 15px Courier New';ctx.textAlign='center';
+    ctx.fillText(ok?'✓  Chính xác!  +300đ':'✗  Sai rồi!  -1000đ',W/2,ry+resultH/2+6);
   }
 }
 
