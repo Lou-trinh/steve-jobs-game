@@ -181,7 +181,7 @@ function fresh(){
   return{running:false,level:0,score:0,lives:3,frames:0,intro:true,
     speed:LEVELS[0].speed,collected:[],spawnT:0,spawnI:LEVELS[0].spawnInt,items:[],
     player:{x:W/2-PLAYER_W/2,y:GROUND-PLAYER_H,vx:0,vy:0,ground:true,face:1},
-    flash:0,flashC:'red',clear:false,clearT:0,
+    flash:0,flashC:'red',clear:false,clearT:0,clearReady:false,
     quiz:{on:false,qi:0,chosen:-1,rt:0,mi:0,btns:[]}};
 }
 
@@ -206,7 +206,7 @@ function tap(cx,cy){
   if(!state.running)return;
   const p=cxy(cx,cy);
   if(state.intro){state.intro=false;return;}
-  if(state.clear){state.clearT=1;return;}
+  if(state.clear){if(state.clearReady)state.clearT=1;return;}
   if(state.quiz.on&&state.quiz.chosen===-1)state.quiz.btns.forEach((b,i)=>{if(p.x>=b.x&&p.x<=b.x+b.w&&p.y>=b.y&&p.y<=b.y+b.h)answer(i);});
 }
 
@@ -506,7 +506,8 @@ function drawClear(st){
   const prog=1-st.clearT/200;
   rr(ox+16,oy+OH-24,OW-32,10,4,'rgba(255,255,255,0.07)');
   rr(ox+16,oy+OH-24,(OW-32)*prog,10,4,'#f5a623');
-  ctx.fillStyle='#555';ctx.font='10px Courier New';ctx.fillText('Tap để tiếp tục',W/2,oy+OH-5);
+  ctx.fillStyle=st.clearReady?'#f5a623':'#444';ctx.font='10px Courier New';
+  ctx.fillText(st.clearReady?'▶  Tap để tiếp tục':'Đọc xong...',W/2,oy+OH-5);
 }
 
 // ─── SPAWN / PHYSICS ─────────────────────────────────────────────
@@ -523,7 +524,7 @@ function overlap(ax,ay,aw,ah,bx,by,bw,bh){return ax<bx+bw&&ax+aw>bx&&ay<by+bh&&a
 function update(st){
   if(!st.running||st.intro)return;
   const q=st.quiz;
-  if(st.clear){st.clearT--;if(st.clearT<=0){st.level>=2?win(st):nextLevel(st);}return;}
+  if(st.clear){st.clearT--;if(st.clearT===120)st.clearReady=true;if(st.clearT<=0){st.level>=2?win(st):nextLevel(st);}return;}
   if(q.on&&q.chosen!==-1){q.rt--;if(q.rt<=0){q.on=false;q.chosen=-1;q.qi++;}return;}
   if(!q.on&&q.qi<2){if(st.collected.length>=LEVELS[st.level].quiz[q.mi]){q.on=true;q.chosen=-1;q.mi++;return;}}
   if(q.on)return;
@@ -557,7 +558,7 @@ function update(st){
 function nextLevel(st){
   st.level++;const lv=LEVELS[st.level];
   st.frames=0;st.collected=[];st.items=[];st.intro=true;
-  st.spawnT=0;st.spawnI=lv.spawnInt;st.speed=lv.speed;st.clear=false;st.clearT=0;
+  st.spawnT=0;st.spawnI=lv.spawnInt;st.speed=lv.speed;st.clear=false;st.clearT=0;st.clearReady=false;
   st.quiz={on:false,qi:0,chosen:-1,rt:0,mi:0,btns:[]};
   st.player.x=W/2-PLAYER_W/2;st.player.y=GROUND-PLAYER_H;
 }
